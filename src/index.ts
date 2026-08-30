@@ -35,3 +35,22 @@ export function truncate(str: string, maxLength: number, suffix = "..."): string
   if (str.length <= maxLength) return str;
   return str.slice(0, maxLength - suffix.length) + suffix;
 }
+
+/**
+ * Converts a string to kebab-case.
+ *
+ * @example
+ * ```ts
+ * import { kebabCase } from "@idlapps/t";
+ *
+ * kebabCase("helloWorld");      // "hello-world"
+ * kebabCase("foo_bar_baz");     // "foo-bar-baz"
+ * kebabCase("Hello World");     // "hello-world"
+ * ```
+ */
+export function kebabCase(str: string): string {
+  return str
+    .replace(/([a-z])([A-Z])/g, "$1-$2")
+    .replace(/[_\s]+/g, "-")
+    .toLowerCase();
+}
