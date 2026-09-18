@@ -1,13 +1,17 @@
+const template = document.createElement('template');
+
 export function t(value: unknown) {
-  const template = document.createElement('template');
   template.innerHTML = String(value);
 
   const refs: Record<string, HTMLElement> = {};
-  template.content.querySelectorAll('[ref]').forEach((el) => {
-    const name = el.getAttribute('ref')!;
-    refs[name] = el as HTMLElement;
-    el.removeAttribute('ref');
-  });
+  const walker = document.createTreeWalker(template.content, NodeFilter.SHOW_ELEMENT);
+  let node: HTMLElement | null;
+  while ((node = walker.nextNode() as HTMLElement | null)) {
+    if (node.hasAttribute('ref')) {
+      refs[node.getAttribute('ref')!] = node;
+      node.removeAttribute('ref');
+    }
+  }
 
   document.body.appendChild(template.content);
   return refs;
