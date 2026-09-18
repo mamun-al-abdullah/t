@@ -27,7 +27,8 @@
     "dev": "tsdown --watch",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "concurrently \"tsdown --watch\" \"browser-sync start --server --port 3000 --files 'dist/**, test/**'\""
   },
   "keywords": [
     "string",
@@ -39,6 +40,8 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "browser-sync": "^3.0.4",
+    "concurrently": "^10.0.5",
     "tsdown": "^0.22.14",
     "typescript": "^5.8.0"
   },
