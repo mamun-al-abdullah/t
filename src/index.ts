@@ -5,7 +5,8 @@ const atoms: Record<string, string> = {
   t: 'top', r: 'right', b: 'bottom', l: 'left',
   x: 'Left:Right', y: 'Top:Bottom',
   w: 'width', h: 'height', min: 'min', max: 'max',
-  bg: 'backgroundColor', text: 'color',
+  P: 'position', D: 'display', fd: 'flexDirection', C: 'center',
+  bg: 'backgroundColor', cl: 'color',
   fs: 'fontSize', fw: 'fontWeight', lh: 'lineHeight', ls: 'letterSpacing', ta: 'textAlign',
   bd: 'border', rounded: 'borderRadius', shadow: 'boxShadow',
   opacity: 'opacity', z: 'zIndex', overflow: 'overflow',
@@ -21,17 +22,18 @@ const shorthandMap: Record<string, string> = {
 };
 
 const fixedMap: Record<string, string> = {
-  absolute: 'position:absolute', relative: 'position:relative',
-  fixed: 'position:fixed', sticky: 'position:sticky',
-  a: 'position:absolute', f: 'position:fixed', r: 'position:relative',
-  flex: 'display:flex',
-  c: 'display:flex;justify-content:center;align-items:center',
-  h: 'display:flex;flex-direction:row',
-  v: 'display:flex;flex-direction:column',
+  absolute: '$P:absolute', a: '$P:absolute',
+  relative: '$P:relative', r: '$P:relative',
+  fixed: '$P:fixed', f: '$P:fixed',
+  sticky: '$P:sticky',
+  flex: '$D:flex',
+  c: '$D:flex;$justify:$C;$items:$C',
+  h: '$D:flex;$fd:row',
+  v: '$D:flex;$fd:column',
 };
 
 function resolve(prop: string): string {
-  return prop.replace(/\$([a-z]+)/g, (_, ref) => atoms[ref] ?? ref);
+  return prop.replace(/\$([a-zA-Z]+)/g, (_, ref) => atoms[ref] ?? ref);
 }
 
 const prefixes = Object.keys(shorthandMap).sort((a, b) => b.length - a.length);
@@ -40,8 +42,15 @@ function camelToKebab(s: string): string {
   return s.replace(/([A-Z])/g, '-$1').toLowerCase();
 }
 
+function toCSS(val: string): string {
+  return val.split(';').map(pair => {
+    const [k, v] = pair.split(':');
+    return `${camelToKebab(k)}:${v}`;
+  }).join(';');
+}
+
 function parseShorthand(attr: string): string {
-  if (fixedMap[attr]) return fixedMap[attr];
+  if (fixedMap[attr]) return toCSS(resolve(fixedMap[attr]));
 
   for (const prefix of prefixes) {
     if (!attr.startsWith(prefix)) continue;
