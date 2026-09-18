@@ -119,6 +119,21 @@ const hoverStyle = document.querySelector('style[data-t]')?.textContent || '';
 const hoverPass = hoverStyle.includes(':hover{background-color:red!important}') && hoverStyle.includes(':hover{padding:15px!important}');
 if (!hoverPass) console.log(`✗ hover rules: ${hoverStyle}`);
 
+// h1: parent hover → child style
+document.body.innerHTML = ''; document.head.innerHTML = '';
+const { child } = t('<div><span h1:p30 ref=child>text</span></div>');
+const h1CSS = document.querySelector('style[data-t]')?.textContent || '';
+if (!h1CSS.includes('hover') || !h1CSS.includes('padding:30px!important')) console.log(`✗ h1 CSS: ${h1CSS}`);
+if (!child?.parentElement?.className.startsWith('_t')) console.log('✗ h1 parent missing hover class');
+if (!child?.className.startsWith('_t')) console.log('✗ h1 child missing target class');
+
+// h2: grandparent hover → grandchild style
+document.body.innerHTML = ''; document.head.innerHTML = '';
+const { gc } = t('<div><div><span h2:clred ref=gc>text</span></div></div>');
+const h2CSS = document.querySelector('style[data-t]')?.textContent || '';
+if (!h2CSS.includes('hover') || !h2CSS.includes('color:red!important')) console.log(`✗ h2 CSS: ${h2CSS}`);
+if (!gc?.className.startsWith('_t')) console.log('✗ h2 grandchild missing class');
+
 // Refs
 document.body.innerHTML = '';
 const { myRef } = t('<div p10 ref=myRef>Hello</div>');

@@ -28,6 +28,7 @@ const exact: Record<string, string> = {
   b: '$bd',
 };
 
+const colors = new Set(['red','blue','green','white','black','yellow','orange','purple','pink','teal','cyan','magenta','lime','maroon','navy','olive','gray','grey','silver','gold','coral','salmon','tomato','crimson','indigo','violet','turquoise','plum','orchid','khaki','lavender','ivory','beige','tan','wheat','peru','sienna','chocolate','firebrick','darkred','lightgreen','darkgreen','lightblue','darkblue','darkcyan','darkmagenta','darkviolet','darkorange','darkgoldenrod','darkslategray','darkolivegreen','mediumseagreen','mediumturquoise','mediumslateblue','mediumorchid','mediumpurple','hotpink','deeppink','palevioletred','lightsalmon','lightcoral','skyblue','lightskyblue','steelblue','dodgerblue','cornflowerblue','royalblue','slateblue','mediumblue','midnightblue','aquamarine','chartreuse','springgreen','forestgreen','limegreen','lawngreen','darkseagreen','palegreen','lightyellow','lemonchiffon','paleturquoise','powderblue','lightsteelblue','aliceblue','ghostwhite','snow','floralwhite','oldlace','linen','antiquewhite','mintcream','mistyrose','peachpuff','navajowhite','burlywood','sandybrown','darksalmon','rosybrown','darkkhaki','palegoldenrod','cadetblue','lightcyan','azure','honeydew','thistle','gainsboro','whitesmoke','darkgray','dimgray','lightslategray','slategray']);
 const unitless = new Set(['z', 'opacity', 'zIndex']);
 const ms = new Set(['tn', 'transition']);
 const transforms = new Set(['tx', 'ty', 'translateX', 'translateY']);
@@ -70,15 +71,18 @@ function parse(attr: string): string {
     if (!attr.startsWith(p) || p.length >= attr.length) continue;
     const raw = attr.slice(p.length);
     const val = parseVal(raw, p);
-    const resolved = resolve(A[p]);
-    const props = resolved.includes(':') ? resolved.split(':') : [resolved];
-    return props.map(k => transforms.has(k) ? `transform:${k}(${val})` : `${kebab(k)}:${val}`).join(';');
+    if (/^\d/.test(raw) || colors.has(raw.toLowerCase()) || raw[0] === '-' && /^\d/.test(raw.slice(1))) {
+      const resolved = resolve(A[p]);
+      const props = resolved.includes(':') ? resolved.split(':') : [resolved];
+      return props.map(k => transforms.has(k) ? `transform:${k}(${val})` : `${kebab(k)}:${val}`).join(';');
+    }
   }
   return '';
 }
 
 let C = 0;
 const R: string[] = [];
+const pendingHoverTarget: { el: Element; level: number; css: string }[] = [];
 
 function apply(el: Element) {
   const s: string[] = [];
@@ -91,6 +95,13 @@ function apply(el: Element) {
         el.classList.add(cls);
         R.push(`.${cls}:hover{${css.split(';').map(p => p + '!important').join(';')}}`);
       }
+      el.removeAttribute(a.name);
+      continue;
+    }
+    const hm = a.name.match(/^h(\d+):(.+)$/);
+    if (hm) {
+      const css = parse(hm[2]);
+      if (css) pendingHoverTarget.push({ el, level: +hm[1], css });
       el.removeAttribute(a.name);
       continue;
     }
@@ -109,10 +120,23 @@ export function t(value: unknown) {
     apply(n);
     if (n.hasAttribute('ref')) { refs[n.getAttribute('ref')!] = n; n.removeAttribute('ref'); }
   }
+  for (const { el, level, css } of pendingHoverTarget) {
+    let ancestor: HTMLElement | null = el as HTMLElement;
+    for (let i = 0; i < level; i++) ancestor = ancestor?.parentElement ?? null;
+    if (ancestor && ancestor !== el) {
+      const tCls = `_t${C++}`;
+      const hCls = `_t${C++}`;
+      ancestor.classList.add(tCls);
+      el.classList.add(hCls);
+      R.push(`.${tCls}:hover .${hCls}{${css.split(';').map(p => p + '!important').join(';')}}`);
+    }
+  }
+  pendingHoverTarget.length = 0;
   document.body.appendChild(T.content);
   if (R.length) {
     const el = document.querySelector('style[data-t]') as HTMLStyleElement || (() => { const s = document.createElement('style'); s.setAttribute('data-t', ''); return document.head.appendChild(s); })();
-    el.textContent = R.join('');
+    el.textContent += R.join('');
+    R.length = 0;
   }
   return refs;
 }
