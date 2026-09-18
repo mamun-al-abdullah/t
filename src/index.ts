@@ -58,8 +58,8 @@ const kebab = (s: string) => s.replace(/([A-Z])/g, '-$1').toLowerCase();
 const toCSS = (v: string) => v.split(';').map(p => { const i = p.indexOf(':'); return i > -1 ? `${kebab(p.slice(0, i))}:${p.slice(i + 1)}` : kebab(p); }).join(';');
 
 function parseVal(raw: string, prop: string): string {
-  if (/^\d+$/.test(raw)) return unitless.has(prop) ? raw : ms.has(prop) ? `${raw}ms` : `${raw}px`;
-  if (/^\d+p$/.test(raw)) return `${raw.slice(0, -1)}%`;
+  if (/^-?\d+$/.test(raw)) return unitless.has(prop) ? raw : ms.has(prop) ? `${raw}ms` : `${raw}px`;
+  if (/^-?\d+p$/.test(raw)) return `${raw.slice(0, -1)}%`;
   return raw;
 }
 
