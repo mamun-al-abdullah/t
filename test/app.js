@@ -1,22 +1,27 @@
 import { t } from "../dist/index.mjs";
 
 const {r1} = t(`
-  <div>
-    <h1 ref=r1>Hello world</h1>
-    <i>wow</i>
+  <div mb50>
+    <h1>Hello world</h1>
+    <i ref=r1>wow</i>
   </div>
   `)
 
-const {r2} = t(`
+const {r1 : r1v2} = t(`
   <div>
-    <h1 p15 m20p>Hello world</h1>
-    <i ref=r2 pb8 mx30>wow</i>
+    <h1 bgteal p15 m15 rounded50 textyellow>Hello world</h1>
+    <i ref=r1>wow</i>
   </div>
   `)
 
 
   r1.onclick = ()=>{
-    r2.innerHTML = `
+    r1v2.innerHTML = `
+    <div>new ${Math.random()}</div>
+    `
+  }
+  r1v2.onclick = ()=>{
+    r1.innerHTML = `
     <div>new ${Math.random()}</div>
     `
   }
