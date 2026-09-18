@@ -1,94 +1,73 @@
-const template = document.createElement('template');
+const T = document.createElement('template');
 
-const atoms: Record<string, string> = {
-  m: 'margin', p: 'padding',
-  t: 'top', r: 'right', b: 'bottom', l: 'left',
-  x: 'Left:Right', y: 'Top:Bottom',
-  w: 'width', h: 'height', min: 'min', max: 'max',
+const A: Record<string, string> = {
+  m: 'margin', p: 'padding', t: 'top', r: 'right', b: 'bottom', l: 'left',
+  x: '$l:$r', y: '$t:$b', w: 'width', h: 'height', min: 'min', max: 'max',
   P: 'position', D: 'display', fd: 'flexDirection', C: 'center',
   bg: 'backgroundColor', cl: 'color',
   fs: 'fontSize', fw: 'fontWeight', lh: 'lineHeight', ls: 'letterSpacing', ta: 'textAlign',
   bd: 'border', rounded: 'borderRadius', shadow: 'boxShadow',
   opacity: 'opacity', z: 'zIndex', overflow: 'overflow',
   gap: 'gap', justify: 'justifyContent', items: 'alignItems',
-};
-
-const shorthandMap: Record<string, string> = {
-  ...atoms,
   ml: '$m$l', mr: '$m$r', mt: '$m$t', mb: '$m$b', mx: '$m$x', my: '$m$y',
   pl: '$p$l', pr: '$p$r', pt: '$p$t', pb: '$p$b', px: '$p$x', py: '$p$y',
   minw: '$min$w', minh: '$min$h', maxw: '$max$w', maxh: '$max$h',
+};
+
+const F: Record<string, string> = {
+  absolute: '$P:absolute', a: '$P:absolute',
+  relative: '$P:relative', r: '$P:relative',
+  fixed: '$P:fixed', f: '$P:fixed', sticky: '$P:sticky',
+  flex: '$D:flex', c: '$D:flex;$justify:$C;$items:$C',
+  h: '$D:flex;$fd:row', v: '$D:flex;$fd:column',
   b: '$bd', bt: '$bd$t', br: '$bd$r', bb: '$bd$b', bl: '$bd$l',
 };
 
-const fixedMap: Record<string, string> = {
-  absolute: '$P:absolute', a: '$P:absolute',
-  relative: '$P:relative', r: '$P:relative',
-  fixed: '$P:fixed', f: '$P:fixed',
-  sticky: '$P:sticky',
-  flex: '$D:flex',
-  c: '$D:flex;$justify:$C;$items:$C',
-  h: '$D:flex;$fd:row',
-  v: '$D:flex;$fd:column',
+const P = Object.keys(A).sort((a, b) => b.length - a.length);
+
+const resolve = (s: string): string => {
+  while (s.includes('$')) s = s.replace(/\$([a-zA-Z]+)/g, (_, k) => A[k] ?? k);
+  return s;
 };
 
-function resolve(prop: string): string {
-  return prop.replace(/\$([a-zA-Z]+)/g, (_, ref) => atoms[ref] ?? ref);
-}
+const kebab = (s: string) => s.replace(/([A-Z])/g, '-$1').toLowerCase();
 
-const prefixes = Object.keys(shorthandMap).sort((a, b) => b.length - a.length);
+const toCSS = (v: string) => v.split(';').map(p => { const [k, val] = p.split(':'); return `${kebab(k)}:${val}`; }).join(';');
 
-function camelToKebab(s: string): string {
-  return s.replace(/([A-Z])/g, '-$1').toLowerCase();
-}
+function parse(attr: string): string {
+  if (F[attr]) return toCSS(resolve(F[attr]));
 
-function toCSS(val: string): string {
-  return val.split(';').map(pair => {
-    const [k, v] = pair.split(':');
-    return `${camelToKebab(k)}:${v}`;
-  }).join(';');
-}
-
-function parseShorthand(attr: string): string {
-  if (fixedMap[attr]) return toCSS(resolve(fixedMap[attr]));
-
-  for (const prefix of prefixes) {
-    if (!attr.startsWith(prefix)) continue;
-    const rawVal = attr.slice(prefix.length);
-    if (!rawVal) continue;
-    const val = /^\d+$/.test(rawVal) ? `${rawVal}px` : /^\d+p$/.test(rawVal) ? `${rawVal.slice(0, -1)}%` : rawVal;
-    const resolved = resolve(shorthandMap[prefix]);
+  for (const p of P) {
+    if (!attr.startsWith(p)) continue;
+    const raw = attr.slice(p.length);
+    if (!raw) continue;
+    const val = /^\d+$/.test(raw) ? `${raw}px` : /^\d+p$/.test(raw) ? `${raw.slice(0, -1)}%` : raw;
+    const resolved = resolve(A[p]);
     const props = resolved.includes(':') ? resolved.split(':') : [resolved];
-    return props.map(p => `${camelToKebab(p)}:${val}`).join(';');
+    return props.map(k => `${kebab(k)}:${val}`).join(';');
   }
   return '';
 }
 
-function applyShortcuts(el: Element) {
-  const styles: string[] = [];
-  for (const attr of Array.from(el.attributes)) {
-    if (attr.name === 'ref') continue;
-    const css = parseShorthand(attr.name);
-    if (css) { styles.push(css); el.removeAttribute(attr.name); }
+function apply(el: Element) {
+  const s: string[] = [];
+  for (const a of Array.from(el.attributes)) {
+    if (a.name === 'ref') continue;
+    const css = parse(a.name);
+    if (css) { s.push(css); el.removeAttribute(a.name); }
   }
-  if (styles.length) {
-    const existing = el.getAttribute('style') || '';
-    el.setAttribute('style', existing ? `${existing};${styles.join(';')}` : styles.join(';'));
-  }
+  if (s.length) el.setAttribute('style', (el.getAttribute('style') || '') + s.join(';'));
 }
 
 export function t(value: unknown) {
-  template.innerHTML = String(value);
+  T.innerHTML = String(value);
   const refs: Record<string, HTMLElement> = {};
-  const walker = document.createTreeWalker(template.content, NodeFilter.SHOW_ELEMENT);
-  let node: HTMLElement | null;
-  while ((node = walker.nextNode() as HTMLElement | null)) {
-    applyShortcuts(node);
-    if (node.hasAttribute('ref')) {
-      refs[node.getAttribute('ref')!] = node;
-      node.removeAttribute('ref');
-    }
+  const w = document.createTreeWalker(T.content, NodeFilter.SHOW_ELEMENT);
+  let n: HTMLElement | null;
+  while ((n = w.nextNode() as HTMLElement | null)) {
+    apply(n);
+    if (n.hasAttribute('ref')) { refs[n.getAttribute('ref')!] = n; n.removeAttribute('ref'); }
   }
-  document.body.appendChild(template.content);
+  document.body.appendChild(T.content);
   return refs;
 }
