@@ -4,7 +4,8 @@ const A: Record<string, string> = {
   m: 'margin', p: 'padding', t: 'top', r: 'right', l: 'left', bottom: 'bottom',
   x: '$l:$r', y: '$t:$b', w: 'width', h: 'height', min: 'min', max: 'max',
   P: 'position', D: 'display', fd: 'flexDirection', C: 'center',
-  bg: 'backgroundColor', cl: 'color',
+  bg: 'backgroundColor', cl: 'color', tn: 'transition',
+  tx: 'translateX', ty: 'translateY',
   fs: 'fontSize', fw: 'fontWeight', lh: 'lineHeight', ls: 'letterSpacing', ta: 'textAlign',
   bd: 'border', rounded: 'borderRadius', shadow: 'boxShadow',
   opacity: 'opacity', z: 'zIndex', overflow: 'overflow',
@@ -28,6 +29,8 @@ const exact: Record<string, string> = {
 };
 
 const unitless = new Set(['z', 'opacity', 'zIndex']);
+const ms = new Set(['tn', 'transition']);
+const transforms = new Set(['tx', 'ty', 'translateX', 'translateY']);
 const AP = Object.keys(A).sort((a, b) => b.length - a.length);
 
 function resolve(s: string): string {
@@ -55,7 +58,7 @@ const kebab = (s: string) => s.replace(/([A-Z])/g, '-$1').toLowerCase();
 const toCSS = (v: string) => v.split(';').map(p => { const i = p.indexOf(':'); return i > -1 ? `${kebab(p.slice(0, i))}:${p.slice(i + 1)}` : kebab(p); }).join(';');
 
 function parseVal(raw: string, prop: string): string {
-  if (/^\d+$/.test(raw)) return unitless.has(prop) ? raw : `${raw}px`;
+  if (/^\d+$/.test(raw)) return unitless.has(prop) ? raw : ms.has(prop) ? `${raw}ms` : `${raw}px`;
   if (/^\d+p$/.test(raw)) return `${raw.slice(0, -1)}%`;
   return raw;
 }
@@ -69,7 +72,7 @@ function parse(attr: string): string {
     const val = parseVal(raw, p);
     const resolved = resolve(A[p]);
     const props = resolved.includes(':') ? resolved.split(':') : [resolved];
-    return props.map(k => `${kebab(k)}:${val}`).join(';');
+    return props.map(k => transforms.has(k) ? `transform:${k}(${val})` : `${kebab(k)}:${val}`).join(';');
   }
   return '';
 }
