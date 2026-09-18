@@ -23,6 +23,11 @@ const shorthandMap: Record<string, string> = {
 const fixedMap: Record<string, string> = {
   absolute: 'position:absolute', relative: 'position:relative',
   fixed: 'position:fixed', sticky: 'position:sticky',
+  a: 'position:absolute', f: 'position:fixed', r: 'position:relative',
+  flex: 'display:flex',
+  c: 'display:flex;justify-content:center;align-items:center',
+  h: 'display:flex;flex-direction:row',
+  v: 'display:flex;flex-direction:column',
 };
 
 function resolve(prop: string): string {
@@ -37,7 +42,6 @@ function camelToKebab(s: string): string {
 
 function parseShorthand(attr: string): string {
   if (fixedMap[attr]) return fixedMap[attr];
-  if (attr === 'flex') return 'display:flex';
 
   for (const prefix of prefixes) {
     if (!attr.startsWith(prefix)) continue;
