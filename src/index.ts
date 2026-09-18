@@ -29,9 +29,12 @@ const exact: Record<string, string> = {
 };
 
 const colors = new Set(['red','blue','green','white','black','yellow','orange','purple','pink','teal','cyan','magenta','lime','maroon','navy','olive','gray','grey','silver','gold','coral','salmon','tomato','crimson','indigo','violet','turquoise','plum','orchid','khaki','lavender','ivory','beige','tan','wheat','peru','sienna','chocolate','firebrick','darkred','lightgreen','darkgreen','lightblue','darkblue','darkcyan','darkmagenta','darkviolet','darkorange','darkgoldenrod','darkslategray','darkolivegreen','mediumseagreen','mediumturquoise','mediumslateblue','mediumorchid','mediumpurple','hotpink','deeppink','palevioletred','lightsalmon','lightcoral','skyblue','lightskyblue','steelblue','dodgerblue','cornflowerblue','royalblue','slateblue','mediumblue','midnightblue','aquamarine','chartreuse','springgreen','forestgreen','limegreen','lawngreen','darkseagreen','palegreen','lightyellow','lemonchiffon','paleturquoise','powderblue','lightsteelblue','aliceblue','ghostwhite','snow','floralwhite','oldlace','linen','antiquewhite','mintcream','mistyrose','peachpuff','navajowhite','burlywood','sandybrown','darksalmon','rosybrown','darkkhaki','palegoldenrod','cadetblue','lightcyan','azure','honeydew','thistle','gainsboro','whitesmoke','darkgray','dimgray','lightslategray','slategray']);
+const keywords = new Set(['bold','bolder','lighter','normal','italic','oblique','thin','hairline','semibold','extrabold','ultrabold','medium','regular','small','xxsmall','xsmall','large','xlarge','xxlarge','smaller','larger','normal','collapse','hidden','visible','scroll','auto','block','inline','inlineblock','inlineflex','grid','inlinegrid','none','contents','unset','inherit','initial','solid','dashed','dotted','double','groove','ridge','inset','outset','cover','contain','fill','stroke','running','paused','forwards','backwards','both','ease','linear','easein','easeout','easeinout','stepstart','stepend','nowrap','pre','prewrap','preline','breakspace','uppercase','lowercase','capitalize','center','justify','start','end','stretch','baseline','sub','super','overline','through','pointer','default','notallowed','text','wait','help','progress','snapstart','snapend','snapcenter','snearest','mandatory','smooth','noerase','erase','vertical','horizontal','row','column','rowreverse','columnreverse','wrap','wrapreverse']);
 const unitless = new Set(['z', 'opacity', 'zIndex']);
 const ms = new Set(['tn', 'transition']);
 const transforms = new Set(['tx', 'ty', 'translateX', 'translateY']);
+const BP: Record<string, number> = { sm: 640, md: 768, lg: 1024, xl: 1280, '2xl': 1536 };
+const BPS = Object.keys(BP).sort((a, b) => b.length - a.length);
 const AP = Object.keys(A).sort((a, b) => b.length - a.length);
 
 function resolve(s: string): string {
@@ -71,7 +74,7 @@ function parse(attr: string): string {
     if (!attr.startsWith(p) || p.length >= attr.length) continue;
     const raw = attr.slice(p.length);
     const val = parseVal(raw, p);
-    if (/^\d/.test(raw) || colors.has(raw.toLowerCase()) || raw[0] === '-' && /^\d/.test(raw.slice(1))) {
+    if (/^\d/.test(raw) || colors.has(raw.toLowerCase()) || keywords.has(raw.toLowerCase()) || raw[0] === '-' && /^\d/.test(raw.slice(1))) {
       const resolved = resolve(A[p]);
       const props = resolved.includes(':') ? resolved.split(':') : [resolved];
       return props.map(k => transforms.has(k) ? `transform:${k}(${val})` : `${kebab(k)}:${val}`).join(';');
@@ -82,31 +85,49 @@ function parse(attr: string): string {
 
 let C = 0;
 const R: string[] = [];
-const pendingHoverTarget: { el: Element; level: number; css: string }[] = [];
+const pendingHoverTarget: { el: Element; level: number; css: string; media?: number }[] = [];
+
+function mediaWrap(m: number | undefined, css: string): string {
+  return m ? `@media(min-width:${m}px){${css}}` : css;
+}
 
 function apply(el: Element) {
   const s: string[] = [];
   for (const a of Array.from(el.attributes)) {
     if (a.name === 'ref') continue;
-    if (a.name.startsWith('h:')) {
-      const css = parse(a.name.slice(2));
+    let attr = a.name;
+    let media: number | undefined;
+    for (const bp of BPS) {
+      if (attr.startsWith(bp + ':')) { media = BP[bp]; attr = attr.slice(bp.length + 1); break; }
+    }
+    if (attr.startsWith('h:')) {
+      const css = parse(attr.slice(2));
       if (css) {
         const cls = `_t${C++}`;
         el.classList.add(cls);
-        R.push(`.${cls}:hover{${css.split(';').map(p => p + '!important').join(';')}}`);
+        R.push(mediaWrap(media, `.${cls}:hover{${css.split(';').map(p => p + '!important').join(';')}}`));
       }
       el.removeAttribute(a.name);
       continue;
     }
-    const hm = a.name.match(/^h(\d+):(.+)$/);
+    const hm = attr.match(/^h(\d+):(.+)$/);
     if (hm) {
       const css = parse(hm[2]);
-      if (css) pendingHoverTarget.push({ el, level: +hm[1], css });
+      if (css) pendingHoverTarget.push({ el, level: +hm[1], css, media });
       el.removeAttribute(a.name);
       continue;
     }
-    const css = parse(a.name);
-    if (css) { s.push(css); el.removeAttribute(a.name); }
+    const css = parse(attr);
+    if (css) {
+      if (media) {
+        const cls = `_t${C++}`;
+        el.classList.add(cls);
+        R.push(mediaWrap(media, `.${cls}{${css.split(';').map(p => p + '!important').join(';')}}`));
+      } else {
+        s.push(css);
+      }
+      el.removeAttribute(a.name);
+    }
   }
   if (s.length) el.setAttribute('style', (el.getAttribute('style') || '') + s.join(';'));
 }
@@ -120,7 +141,7 @@ export function t(value: unknown) {
     apply(n);
     if (n.hasAttribute('ref')) { refs[n.getAttribute('ref')!] = n; n.removeAttribute('ref'); }
   }
-  for (const { el, level, css } of pendingHoverTarget) {
+  for (const { el, level, css, media } of pendingHoverTarget) {
     let ancestor: HTMLElement | null = el as HTMLElement;
     for (let i = 0; i < level; i++) ancestor = ancestor?.parentElement ?? null;
     if (ancestor && ancestor !== el) {
@@ -128,7 +149,7 @@ export function t(value: unknown) {
       const hCls = `_t${C++}`;
       ancestor.classList.add(tCls);
       el.classList.add(hCls);
-      R.push(`.${tCls}:hover .${hCls}{${css.split(';').map(p => p + '!important').join(';')}}`);
+      R.push(mediaWrap(media, `.${tCls}:hover .${hCls}{${css.split(';').map(p => p + '!important').join(';')}}`));
     }
   }
   pendingHoverTarget.length = 0;
