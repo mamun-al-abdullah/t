@@ -65,7 +65,7 @@ function parse(attr: string): string {
 
   for (const p of AP) {
     if (!attr.startsWith(p) || p.length >= attr.length) continue;
-    const raw = attr.slice(p.length).replace(/^-/, '');
+    const raw = attr.slice(p.length);
     const val = parseVal(raw, p);
     const resolved = resolve(A[p]);
     const props = resolved.includes(':') ? resolved.split(':') : [resolved];
@@ -74,10 +74,23 @@ function parse(attr: string): string {
   return '';
 }
 
+let C = 0;
+const R: string[] = [];
+
 function apply(el: Element) {
   const s: string[] = [];
   for (const a of Array.from(el.attributes)) {
     if (a.name === 'ref') continue;
+    if (a.name.startsWith('h:')) {
+      const css = parse(a.name.slice(2));
+      if (css) {
+        const cls = `_t${C++}`;
+        el.classList.add(cls);
+        R.push(`.${cls}:hover{${css.split(';').map(p => p + '!important').join(';')}}`);
+      }
+      el.removeAttribute(a.name);
+      continue;
+    }
     const css = parse(a.name);
     if (css) { s.push(css); el.removeAttribute(a.name); }
   }
@@ -94,5 +107,9 @@ export function t(value: unknown) {
     if (n.hasAttribute('ref')) { refs[n.getAttribute('ref')!] = n; n.removeAttribute('ref'); }
   }
   document.body.appendChild(T.content);
+  if (R.length) {
+    const el = document.querySelector('style[data-t]') as HTMLStyleElement || (() => { const s = document.createElement('style'); s.setAttribute('data-t', ''); return document.head.appendChild(s); })();
+    el.textContent = R.join('');
+  }
   return refs;
 }
