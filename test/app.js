@@ -15,5 +15,8 @@ const {r2} = t(`
   `)
 
 
-  r1.innerHTML = 'r1 changed';
-  r2.innerText = 'r2 changed';
+  r1.onclick = ()=>{
+    r2.innerHTML = `
+    <div>new ${Math.random()}</div>
+    `
+  }
