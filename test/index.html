@@ -7,45 +7,6 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>@idlapps/t</h1>
-    <p class="subtitle">Lightweight, tree-shakable string utility functions</p>
-
-    <div class="card">
-      <h2>camelCase</h2>
-      <p>Converts a string to camelCase</p>
-      <div class="input-row">
-        <input type="text" id="camelCaseInput" placeholder="hello-world" value="hello-world" />
-        <button onclick="runCamelCase()">Run</button>
-      </div>
-      <div class="result" id="camelCaseResult"></div>
-      <div class="examples" id="camelCaseExamples"></div>
-    </div>
-
-    <div class="card">
-      <h2>kebab-case</h2>
-      <p>Converts a string to kebab-case</p>
-      <div class="input-row">
-        <input type="text" id="kebabCaseInput" placeholder="helloWorld" value="helloWorld" />
-        <button onclick="runKebabCase()">Run</button>
-      </div>
-      <div class="result" id="kebabCaseResult"></div>
-      <div class="examples" id="kebabCaseExamples"></div>
-    </div>
-
-    <div class="card">
-      <h2>truncate</h2>
-      <p>Truncates a string to a maximum length</p>
-      <div class="input-row">
-        <input type="text" id="truncateInput" placeholder="Hello, World!" value="Hello, World!" />
-        <input type="number" id="truncateMax" placeholder="Max length" value="5" min="1" />
-        <button onclick="runTruncate()">Run</button>
-      </div>
-      <div class="result" id="truncateResult"></div>
-      <div class="examples" id="truncateExamples"></div>
-    </div>
-  </div>
-
   <script type="module" src="app.js"></script>
 </body>
 </html>
