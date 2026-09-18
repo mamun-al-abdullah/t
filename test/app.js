@@ -9,8 +9,8 @@ const {r1} = t(`
 
 const {r2} = t(`
   <div>
-    <h1>Hello world</h1>
-    <i ref=r2>wow</i>
+    <h1 p15 m20p>Hello world</h1>
+    <i ref=r2 pb8 mx30>wow</i>
   </div>
   `)
 
