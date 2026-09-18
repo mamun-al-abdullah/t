@@ -28,7 +28,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build",
-    "test": "concurrently \"tsdown --watch\" \"browser-sync start --server --port 3000 --files 'dist/**, test/**'\""
+    "test": "concurrently \"tsdown --watch\" \"browser-sync start --config bs-config.cjs\""
   },
   "keywords": [
     "string",
