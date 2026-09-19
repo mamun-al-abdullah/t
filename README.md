@@ -300,20 +300,21 @@ input.placeholder = "Type...";
 btn.onclick = () => alert(input.value);
 ```
 
-## Auto-Patch `innerHTML`
+## Prototype Shorthands (`ih`, `it`, `tc`)
 
-Any `innerHTML` assignment automatically applies `t()` styles:
+| Property | Alias for | Auto-style |
+|----------|-----------|------------|
+| `el.ih` | `innerHTML` | Yes |
+| `el.it` | `innerText` | No |
+| `el.tc` | `textContent` | No |
 
 ```js
-el.innerHTML = '<div bgred p15>hello</div>';
-// → <div style="background:red;padding:15px">hello</div>
+box.ih = '<div bgred p15>hello</div>';
+// → auto-applies styles
 
-// Dynamic updates work too
-el.innerHTML = '<div h:bgblue tn300>hover me</div>';
-// → hover styles auto-applied
+box.it = 'plain text';  // no HTML parse
+box.tc = 'plain text';  // no HTML parse
 ```
-
-No extra imports needed — styles apply on any DOM insert.
 
 ## License
 

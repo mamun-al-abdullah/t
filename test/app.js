@@ -29,5 +29,5 @@ const {r1 : r1v2} = t(`
   }
 
   t(`
-    <div a:bgred a h48 w48 c fs40 ba1 b100 h:ba5 tn300 h:ts2  bc#00aaaa bcrtransparent bglinear-gradient(red,blue)>=</div>
+    <div a h48 w48 c fs40 ba1 b100 h:ba5 tn300 h:ts2  bc#00aaaa bcrtransparent bglinear-gradient(red,blue)>=</div>
     `)

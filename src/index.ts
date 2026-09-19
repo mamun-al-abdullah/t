@@ -186,9 +186,16 @@ export function t(value: unknown) {
 }
 
 if (typeof Element !== 'undefined') {
-  const d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML')!;
-  Object.defineProperty(Element.prototype, 'innerHTML', {
-    set(v) { d.set!.call(this, v); process(this); },
-    get() { return d.get!.call(this); }
+  Object.defineProperty(Element.prototype, 'ih', {
+    set(v) { this.innerHTML = v; process(this); },
+    get()  { return this.innerHTML; }
+  });
+  Object.defineProperty(Element.prototype, 'it', {
+    set(v) { this.innerText = v; },
+    get()  { return this.innerText; }
+  });
+  Object.defineProperty(Element.prototype, 'tc', {
+    set(v) { this.textContent = v; },
+    get()  { return this.textContent; }
   });
 }

@@ -159,26 +159,41 @@ document.body.innerHTML = '';
 const { s } = t('<div ml10><span mr20 ref=s></span></div>');
 if (s?.getAttribute('style') !== 'margin-right:20px') console.log(`✗ nested: ${s?.getAttribute('style')}`);
 
-// innerHTML auto-patch
+// ih auto-styles
 document.body.innerHTML = '<div id=box></div>';
 const box = document.getElementById('box')!;
-box.innerHTML = '<div bgred p10>test</div>';
+box.ih = '<div bgred p10>test</div>';
 const ihStyle = box.querySelector('div')?.getAttribute('style');
-if (ihStyle !== 'background:red;padding:10px') console.log(`✗ innerHTML: ${ihStyle}`);
+if (ihStyle !== 'background:red;padding:10px') console.log(`✗ ih: ${ihStyle}`);
 
-// Dynamic innerHTML
-box.innerHTML = '';
-const ch = document.createElement('div');
-box.appendChild(ch);
-ch.innerHTML = '<span bgteal p15>dyn</span>';
-const dynStyle = box.querySelector('span')?.getAttribute('style');
-if (dynStyle !== 'background:teal;padding:15px') console.log(`✗ dynamic: ${dynStyle}`);
-
-// Nested innerHTML
-box.innerHTML = '<div bgblue p20><span bgred p5>nested</span></div>';
+// ih nested
+box.ih = '<div bgblue p20><span bgred p5>nested</span></div>';
 const nd = box.querySelector('div')?.getAttribute('style');
 const ns = box.querySelector('span')?.getAttribute('style');
-if (nd !== 'background:blue;padding:20px') console.log(`✗ nested div: ${nd}`);
-if (ns !== 'background:red;padding:5px') console.log(`✗ nested span: ${ns}`);
+if (nd !== 'background:blue;padding:20px') console.log(`✗ ih nested div: ${nd}`);
+if (ns !== 'background:red;padding:5px') console.log(`✗ ih nested span: ${ns}`);
+
+// ih hover
+box.ih = '<div h:bgred>hover</div>';
+const hcss = document.querySelector('style[data-t]')?.textContent || '';
+if (!hcss.includes(':hover{background:red!important}')) console.log(`✗ ih hover: ${hcss}`);
+
+// ih dynamic
+box.ih = '';
+const ch = document.createElement('div');
+box.appendChild(ch);
+ch.ih = '<span bgteal p15>dyn</span>';
+const dynStyle = box.querySelector('span')?.getAttribute('style');
+if (dynStyle !== 'background:teal;padding:15px') console.log(`✗ ih dynamic: ${dynStyle}`);
+
+// it/tc are plain aliases (no auto-style)
+box.it = 'plain text';
+if (box.it !== 'plain text') console.log(`✗ it`);
+box.tc = 'text content';
+if (box.tc !== 'text content') console.log(`✗ tc`);
+
+// innerHTML does NOT auto-style
+box.innerHTML = '<div bgred>no-style</div>';
+if (box.querySelector('div')?.getAttribute('style')) console.log('✗ innerHTML should not auto-style');
 
 console.log('All tests complete');
