@@ -1,6 +1,6 @@
 {
   "name": "@idlapps/t",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Lightweight, tree-shakable string utility functions",
   "type": "module",
   "main": "./dist/index.cjs",
