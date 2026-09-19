@@ -22,6 +22,12 @@ const { el, refs } = t("<div p10 bgred ref=box>Hello</div>");
 const box = document.getElementById("app");
 const { input } = t(box, '<input bgwhite p10 ref=input>');
 
+// Position (insertAdjacentHTML): 1=beforebegin, 2=afterbegin, 3=beforeend, 4=afterend
+t(box, '<div>prepended</div>', 2);  // prepend
+t(box, '<div>appended</div>', 3);   // append (default)
+t(box, '<div>before</div>', 1);     // before parent
+t(box, '<div>after</div>', 4);      // after parent
+
 // Prototype shorthands
 box.ih = '<div bgred>auto-styled</div>';
 box.it = 'plain text';
@@ -30,7 +36,7 @@ box.tc = 'plain text';
 
 ## How it works
 
-`t()` parses an HTML string, extracts `ref` attributes as refs, converts shorthand CSS attribute names into inline styles, and returns the DOM fragment. Pass a parent element as the first argument to append there instead of body.
+`t()` parses an HTML string, extracts `ref` attributes as refs, converts shorthand CSS attribute names into inline styles, and returns the DOM fragment. Pass a parent element as the first argument to append there instead of body. Optional 3rd argument for positioning: `1`=beforebegin, `2`=afterbegin, `3`=beforeend (default), `4`=afterend.
 
 ## Shorthand CSS
 
