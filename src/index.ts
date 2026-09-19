@@ -29,12 +29,11 @@ const exact: Record<string, string> = {
   ba: '$bd',
 };
 
-const colors = new Set(['transparent','currentcolor','inherit','initial','unset','red','blue','green','white','black','yellow','orange','purple','pink','teal','cyan','magenta','lime','maroon','navy','olive','gray','grey','silver','gold','coral','salmon','tomato','crimson','indigo','violet','turquoise','plum','orchid','khaki','lavender','ivory','beige','tan','wheat','peru','sienna','chocolate','firebrick','darkred','lightgreen','darkgreen','lightblue','darkblue','darkcyan','darkmagenta','darkviolet','darkorange','darkgoldenrod','darkslategray','darkolivegreen','mediumseagreen','mediumturquoise','mediumslateblue','mediumorchid','mediumpurple','hotpink','deeppink','palevioletred','lightsalmon','lightcoral','skyblue','lightskyblue','steelblue','dodgerblue','cornflowerblue','royalblue','slateblue','mediumblue','midnightblue','aquamarine','chartreuse','springgreen','forestgreen','limegreen','lawngreen','darkseagreen','palegreen','lightyellow','lemonchiffon','paleturquoise','powderblue','lightsteelblue','aliceblue','ghostwhite','snow','floralwhite','oldlace','linen','antiquewhite','mintcream','mistyrose','peachpuff','navajowhite','burlywood','sandybrown','darksalmon','rosybrown','darkkhaki','palegoldenrod','cadetblue','lightcyan','azure','honeydew','thistle','gainsboro','whitesmoke','darkgray','dimgray','lightslategray','slategray']);
-const keywords = new Set(['bold','bolder','lighter','normal','italic','oblique','thin','hairline','semibold','extrabold','ultrabold','medium','regular','small','xxsmall','xsmall','large','xlarge','xxlarge','smaller','larger','normal','collapse','hidden','visible','scroll','auto','block','inline','inlineblock','inlineflex','grid','inlinegrid','none','contents','unset','inherit','initial','solid','dashed','dotted','double','groove','ridge','inset','outset','cover','contain','fill','stroke','running','paused','forwards','backwards','both','ease','linear','easein','easeout','easeinout','stepstart','stepend','nowrap','pre','prewrap','preline','breakspace','uppercase','lowercase','capitalize','center','justify','start','end','stretch','baseline','sub','super','overline','through','pointer','default','notallowed','text','wait','help','progress','snapstart','snapend','snapcenter','snearest','mandatory','smooth','noerase','erase','vertical','horizontal','row','column','rowreverse','columnreverse','wrap','wrapreverse','sm','md','lg','xl','2xl']);
 const unitless = new Set(['z', 'opacity', 'zIndex']);
 const ms = new Set(['tn', 'transition']);
 const transforms = new Set(['tx', 'ty', 'translateX', 'translateY', 'tr', 'ts', 'rotate', 'scale']);
 const solidSuffix = new Set(['ba', 'bt', 'br', 'bb', 'bl', 'border', 'borderTop', 'borderRight', 'borderBottom', 'borderLeft']);
+const colors = new Set(['red','blue','green','white','black','yellow','orange','purple','pink','gray','grey','teal','cyan','magenta','lime','olive','maroon','navy','aqua','fuchsia','silver','transparent','inherit','initial','unset','currentcolor']);
 const deg = new Set(['tr', 'rotate']);
 const unitlessVal = new Set(['ts', 'scale']);
 const BP: Record<string, number> = { sm: 640, md: 768, lg: 1024, xl: 1280, '2xl': 1536 };
@@ -71,21 +70,26 @@ function parseVal(raw: string, prop: string): string {
   return raw;
 }
 
-const hex = /^#([0-9a-f]{3,8})$/i;
-const fn = /^(rgba?|hsla?|oklch|color|linear-gradient|radial-gradient|conic-gradient|repeating-linear-gradient|repeating-radial-gradient)\(.+\)$/i;
-
 function parse(attr: string): string {
   if (exact[attr]) return toCSS(resolve(exact[attr]));
+
+  for (const p of ['bg', 'cl', 'bc']) {
+    if (attr.startsWith(p) && attr.length > p.length) {
+      const raw = attr.slice(p.length);
+      if (p === 'bc' && !colors.has(raw)) break;
+      const val = parseVal(raw, p);
+      return `${kebab(p === 'cl' ? 'color' : resolve(A[p]))}:${val}`;
+    }
+  }
 
   for (const p of AP) {
     if (!attr.startsWith(p) || p.length >= attr.length) continue;
     const raw = attr.slice(p.length);
+    if (!raw) continue;
     const val = parseVal(raw, p);
-    if (/^\d/.test(raw) || colors.has(raw.toLowerCase()) || keywords.has(raw.toLowerCase()) || hex.test(raw) || fn.test(raw) || raw[0] === '-' && /^\d/.test(raw.slice(1))) {
-      const resolved = resolve(A[p]);
-      const props = resolved.includes(':') ? resolved.split(':') : [resolved];
-      return props.map(k => transforms.has(k) ? `transform:${k}(${val})` : solidSuffix.has(p) && /^\d/.test(raw) ? `${kebab(k)}:${val} solid` : `${kebab(k)}:${val}`).join(';');
-    }
+    const resolved = resolve(A[p]);
+    const props = resolved.includes(':') ? resolved.split(':') : [resolved];
+    return props.map(k => transforms.has(k) ? `transform:${k}(${val})` : solidSuffix.has(p) && /^\d/.test(raw) ? `${kebab(k)}:${val} solid` : `${kebab(k)}:${val}`).join(';');
   }
   return '';
 }
