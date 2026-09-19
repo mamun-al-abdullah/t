@@ -4,14 +4,14 @@ const {r1} = t(`
   <div bggray p50 selnone>
   <div v md:h bggrey tn300>
     <h1 bgteal pb15 tn300 h1:ty100 selall>Hello world</h1>
-    <p bgred lg:h2:tx100 ref=r1 p15 pl100 tn500 md:bgcyan md:h:bgyellow lg:h:tx300 lg:tx200>wow</p>
+    <p bgrgb(100,200,100,0.5) lg:h2:tx100 ref=r1 p15 pl100 tn500 md:bgcyan md:h:bgyellow lg:h:tx300 lg:tx200>wow</p>
   </div>
   </div>
   `)
 
 const {r2} = t(`
-  <div>
-    <h1 tn3000 bgteal h:bgred h:tx100 p15 mb15 rounded50 clyellow tac>Hello world</h1>
+  <div p15 bgtomato h100 oh>
+    <h1 tn3000 bgteal h:bgred h:tx100 p15 mb15 rounded50 clyellow tac>Hello world e wewe rwer w rwe w erwe we we rwe r wer wer wer wer wer we we ew rwe rwe rwe rwe rwe we r wer wer wer wer wer wer ewr wer wer</h1>
     <p ref=r2 bgblue p15 tn500>r2</p>
   </div>
   `)

@@ -169,10 +169,15 @@ box.tc = 'plain text';
 | Shorthand        | CSS                    |
 | ---------------- | ---------------------- |
 | `z10`            | `z-index:10`           |
-| `overflowhidden` | `overflow:hidden`      |
 | `tn500`          | `transition:500ms`     |
 | `selnone`        | `user-select:none`     |
 | `selauto`        | `user-select:auto`     |
+| `o0`-`o10`       | `opacity:0`-`1` (÷10)   |
+| `oa`             | `overflow:auto`        |
+| `oh`             | `overflow:hidden`      |
+| `oxa` / `oxh`    | `overflow-x:auto/hidden` |
+| `oya` / `oyh`    | `overflow-y:auto/hidden` |
+| `overflowhidden` | `overflow:hidden`      |
 
 ### Transform
 

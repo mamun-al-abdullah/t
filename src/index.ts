@@ -21,7 +21,7 @@ const A: Record<string, string> = {
   tx: 'translateX', ty: 'translateY', tr: 'rotate', ts: 'scale',
   fs: 'fontSize', fw: 'fontWeight', lh: 'lineHeight', ls: 'letterSpacing', ta: 'textAlign',
   bd: 'border', rounded: 'borderRadius', shadow: 'boxShadow',
-  opacity: 'opacity', z: 'zIndex', overflow: 'overflow',
+  opacity: 'opacity', z: 'zIndex', overflow: 'overflow', o: 'opacity',
   gap: 'gap', justify: 'justifyContent', items: 'alignItems', sel: 'userSelect',
   ml: '$m$l', mr: '$m$r', mt: '$m$t', mb: '$m$b',
   mx: '$m$l:$m$r', my: '$m$t:$m$b',
@@ -39,10 +39,13 @@ const exact: Record<string, string> = {
   flex: '$D:flex', c: '$D:flex;$justify:$C;$items:$C',
   h: '$D:flex;$fd:row', v: '$D:flex;$fd:column',
   tac: '$ta:center', tar: '$ta:right', tal: '$ta:left',
-  ba: '$bd',
+  ba: '$bd', oa: 'overflow:auto', oh: 'overflow:hidden',
+  oxa: 'overflowX:auto', oxh: 'overflowX:hidden',
+  oya: 'overflowY:auto', oyh: 'overflowY:hidden',
 };
 
-const noPx = new Set(['z', 'opacity', 'zIndex', 'ts', 'scale']);
+const noPx = new Set(['z', 'opacity', 'o', 'zIndex', 'ts', 'scale']);
+const div10 = new Set(['o', 'opacity']);
 const ms = new Set(['tn', 'transition']);
 const transforms = new Set(['tx', 'ty', 'translateX', 'translateY', 'tr', 'ts', 'rotate', 'scale']);
 const solidSuffix = new Set(['ba', 'bt', 'br', 'bb', 'bl', 'border', 'borderTop', 'borderRight', 'borderBottom', 'borderLeft']);
@@ -77,7 +80,7 @@ const kebab = (s: string) => s.replace(/([A-Z])/g, '-$1').toLowerCase();
 const toCSS = (v: string) => v.split(';').map(p => { const i = p.indexOf(':'); return i > -1 ? `${kebab(p.slice(0, i))}:${p.slice(i + 1)}` : kebab(p); }).join(';');
 
 function parseVal(raw: string, prop: string): string {
-  if (/^-?\d+$/.test(raw)) return noPx.has(prop) ? raw : ms.has(prop) ? `${raw}ms` : deg.has(prop) ? `${raw}deg` : `${raw}px`;
+  if (/^-?\d+$/.test(raw)) return div10.has(prop) ? `${+raw / 10}` : noPx.has(prop) ? raw : ms.has(prop) ? `${raw}ms` : deg.has(prop) ? `${raw}deg` : `${raw}px`;
   if (/^-?\d+p$/.test(raw)) return `${raw.slice(0, -1)}%`;
   return raw;
 }
