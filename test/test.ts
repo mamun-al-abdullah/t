@@ -1,3 +1,14 @@
+/// <reference lib="es2022" />
+/// <reference lib="dom" />
+
+declare global {
+  interface Element {
+    ih: string;
+    it: string;
+    tc: string;
+  }
+}
+
 import { t } from '../dist/index.mjs';
 
 function test(name: string, expected: string) {
@@ -195,5 +206,21 @@ if (box.tc !== 'text content') console.log(`✗ tc`);
 // innerHTML does NOT auto-style
 box.innerHTML = '<div bgred>no-style</div>';
 if (box.querySelector('div')?.getAttribute('style')) console.log('✗ innerHTML should not auto-style');
+
+// Parent element
+document.body.innerHTML = '';
+const parent = document.createElement('div');
+document.body.appendChild(parent);
+const { pr } = t(parent, '<span bgblue p20 ref=pr>child</span>');
+if (pr?.getAttribute('style') !== 'background:blue;padding:20px') console.log(`✗ parent: ${pr?.getAttribute('style')}`);
+if (!parent.contains(pr)) console.log('✗ not in parent');
+
+// Parent nested
+document.body.innerHTML = '';
+const pbox = document.createElement('div');
+document.body.appendChild(pbox);
+const { a, b } = t(pbox, '<div bgred p10 ref=a><span bggreen p5 ref=b>nested</span></div>');
+if (a?.getAttribute('style') !== 'background:red;padding:10px') console.log(`✗ parent nested a`);
+if (b?.getAttribute('style') !== 'background:green;padding:5px') console.log(`✗ parent nested b`);
 
 console.log('All tests complete');

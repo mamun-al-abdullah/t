@@ -15,14 +15,22 @@ pnpm add @idlapps/t
 ```ts
 import { t } from "@idlapps/t";
 
+// Append to body
 const { el, refs } = t("<div p10 bgred ref=box>Hello</div>");
-document.body.appendChild(el);
-refs.box.style.color; // apply additional JS to refs
+
+// Append to specific parent
+const box = document.getElementById("app");
+const { input } = t(box, '<input bgwhite p10 ref=input>');
+
+// Prototype shorthands
+box.ih = '<div bgred>auto-styled</div>';
+box.it = 'plain text';
+box.tc = 'plain text';
 ```
 
 ## How it works
 
-`t()` parses an HTML string, extracts `ref` attributes as refs, converts shorthand CSS attribute names into inline styles, and returns the DOM fragment.
+`t()` parses an HTML string, extracts `ref` attributes as refs, converts shorthand CSS attribute names into inline styles, and returns the DOM fragment. Pass a parent element as the first argument to append there instead of body.
 
 ## Shorthand CSS
 

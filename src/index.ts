@@ -172,8 +172,9 @@ function process(root: Element | DocumentFragment) {
   }
 }
 
-export function t(value: unknown) {
-  T.innerHTML = String(value);
+export function t(value: unknown, html?: string) {
+  const [parent, content] = typeof value === 'string' ? [null, value] : [value as Element, html];
+  T.innerHTML = String(content);
   const refs: Record<string, HTMLElement> = {};
   const w = document.createTreeWalker(T.content, NodeFilter.SHOW_ELEMENT);
   let n: HTMLElement | null;
@@ -181,7 +182,7 @@ export function t(value: unknown) {
     if (n.hasAttribute('ref')) { refs[n.getAttribute('ref')!] = n; n.removeAttribute('ref'); }
   }
   process(T.content);
-  document.body.appendChild(T.content);
+  (parent || document.body).appendChild(T.content);
   return refs;
 }
 
