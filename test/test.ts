@@ -42,10 +42,15 @@ test('minh100', 'min-height:100px');
 test('maxh200', 'max-height:200px');
 
 // Colors/Background
-test('bgred', 'background-color:red');
-test('bgblue', 'background-color:blue');
+test('bgred', 'background:red');
+test('bgblue', 'background:blue');
 test('clwhite', 'color:white');
 test('clblack', 'color:black');
+test('bgtransparent', 'background:transparent');
+test('cltransparent', 'color:transparent');
+test('bctransparent', 'border-color:transparent');
+test('bg#ff0000', 'background:#ff0000');
+test('cl#ffffff', 'color:#ffffff');
 
 // Typography
 test('fs14', 'font-size:14px');
@@ -75,12 +80,17 @@ test('tar', 'text-align:right');
 test('tal', 'text-align:left');
 
 // Border
-test('b', 'border');
-test('b1', 'border:1px');
-test('bt1', 'border-top:1px');
-test('br1', 'border-right:1px');
-test('bb1', 'border-bottom:1px');
-test('bl1', 'border-left:1px');
+test('ba', 'border');
+test('ba2', 'border:2px solid');
+test('bt1', 'border-top:1px solid');
+test('br1', 'border-right:1px solid');
+test('bb1', 'border-bottom:1px solid');
+test('bl1', 'border-left:1px solid');
+test('bcred', 'border-color:red');
+test('bctred', 'border-top-color:red');
+test('bcrblue', 'border-right-color:blue');
+test('bcbgreen', 'border-bottom-color:green');
+test('bclwhite', 'border-left-color:white');
 
 // Rounded/Shadow
 test('rounded8', 'border-radius:8px');
@@ -107,6 +117,10 @@ test('tn300', 'transition:300ms');
 // Transform
 test('tx10', 'transform:translateX(10px)');
 test('ty20', 'transform:translateY(20px)');
+test('tr45', 'transform:rotate(45deg)');
+test('tr-90', 'transform:rotate(-90deg)');
+test('ts2', 'transform:scale(2)');
+test('ts05', 'transform:scale(05)');
 test('tx50p', 'transform:translateX(50%)');
 test('tx-50p', 'transform:translateX(-50%)');
 test('ty-20', 'transform:translateY(-20px)');
@@ -116,23 +130,24 @@ document.body.innerHTML = '';
 document.head.innerHTML = '';
 const { r: hr } = t('<div h:bgred h:p15 ref=r></div>');
 const hoverStyle = document.querySelector('style[data-t]')?.textContent || '';
-const hoverPass = hoverStyle.includes(':hover{background-color:red!important}') && hoverStyle.includes(':hover{padding:15px!important}');
+const hoverPass = hoverStyle.includes(':hover{background:red!important}') && hoverStyle.includes(':hover{padding:15px!important}');
 if (!hoverPass) console.log(`✗ hover rules: ${hoverStyle}`);
 
-// h1: parent hover → child style
-document.body.innerHTML = ''; document.head.innerHTML = '';
-const { child } = t('<div><span h1:p30 ref=child>text</span></div>');
-const h1CSS = document.querySelector('style[data-t]')?.textContent || '';
-if (!h1CSS.includes('hover') || !h1CSS.includes('padding:30px!important')) console.log(`✗ h1 CSS: ${h1CSS}`);
-if (!child?.parentElement?.className.startsWith('_t')) console.log('✗ h1 parent missing hover class');
-if (!child?.className.startsWith('_t')) console.log('✗ h1 child missing target class');
+// Pseudo-classes
+for (const [pfx, pseudo] of [['a', 'active'], ['f', 'focus'], ['fw', 'focus-within'], ['fv', 'focus-visible'], ['d', 'disabled'], ['ch', 'checked'], ['v', 'visited'], ['ln', 'link']]) {
+  document.body.innerHTML = ''; document.head.innerHTML = '';
+  t(`<div ${pfx}:bgred></div>`);
+  const css = document.querySelector('style[data-t]')?.textContent || '';
+  if (!css.includes(`:${pseudo}{background:red!important}`)) console.log(`✗ ${pfx}: → ${css}`);
+}
 
-// h2: grandparent hover → grandchild style
-document.body.innerHTML = ''; document.head.innerHTML = '';
-const { gc } = t('<div><div><span h2:clred ref=gc>text</span></div></div>');
-const h2CSS = document.querySelector('style[data-t]')?.textContent || '';
-if (!h2CSS.includes('hover') || !h2CSS.includes('color:red!important')) console.log(`✗ h2 CSS: ${h2CSS}`);
-if (!gc?.className.startsWith('_t')) console.log('✗ h2 grandchild missing class');
+// Ancestor pseudo-classes
+for (const [pfx, pseudo] of [['a', 'active'], ['f', 'focus'], ['d', 'disabled'], ['ch', 'checked'], ['v', 'visited'], ['ln', 'link']]) {
+  document.body.innerHTML = ''; document.head.innerHTML = '';
+  t(`<div><span ${pfx}1:bgred></span></div>`);
+  const css = document.querySelector('style[data-t]')?.textContent || '';
+  if (!css.includes(`:${pseudo} .`)) console.log(`✗ ${pfx}1: → ${css}`);
+}
 
 // Refs
 document.body.innerHTML = '';

@@ -30,7 +30,7 @@ const exact: Record<string, string> = {
 };
 
 const colors = new Set(['transparent','currentcolor','inherit','initial','unset','red','blue','green','white','black','yellow','orange','purple','pink','teal','cyan','magenta','lime','maroon','navy','olive','gray','grey','silver','gold','coral','salmon','tomato','crimson','indigo','violet','turquoise','plum','orchid','khaki','lavender','ivory','beige','tan','wheat','peru','sienna','chocolate','firebrick','darkred','lightgreen','darkgreen','lightblue','darkblue','darkcyan','darkmagenta','darkviolet','darkorange','darkgoldenrod','darkslategray','darkolivegreen','mediumseagreen','mediumturquoise','mediumslateblue','mediumorchid','mediumpurple','hotpink','deeppink','palevioletred','lightsalmon','lightcoral','skyblue','lightskyblue','steelblue','dodgerblue','cornflowerblue','royalblue','slateblue','mediumblue','midnightblue','aquamarine','chartreuse','springgreen','forestgreen','limegreen','lawngreen','darkseagreen','palegreen','lightyellow','lemonchiffon','paleturquoise','powderblue','lightsteelblue','aliceblue','ghostwhite','snow','floralwhite','oldlace','linen','antiquewhite','mintcream','mistyrose','peachpuff','navajowhite','burlywood','sandybrown','darksalmon','rosybrown','darkkhaki','palegoldenrod','cadetblue','lightcyan','azure','honeydew','thistle','gainsboro','whitesmoke','darkgray','dimgray','lightslategray','slategray']);
-const keywords = new Set(['bold','bolder','lighter','normal','italic','oblique','thin','hairline','semibold','extrabold','ultrabold','medium','regular','small','xxsmall','xsmall','large','xlarge','xxlarge','smaller','larger','normal','collapse','hidden','visible','scroll','auto','block','inline','inlineblock','inlineflex','grid','inlinegrid','none','contents','unset','inherit','initial','solid','dashed','dotted','double','groove','ridge','inset','outset','cover','contain','fill','stroke','running','paused','forwards','backwards','both','ease','linear','easein','easeout','easeinout','stepstart','stepend','nowrap','pre','prewrap','preline','breakspace','uppercase','lowercase','capitalize','center','justify','start','end','stretch','baseline','sub','super','overline','through','pointer','default','notallowed','text','wait','help','progress','snapstart','snapend','snapcenter','snearest','mandatory','smooth','noerase','erase','vertical','horizontal','row','column','rowreverse','columnreverse','wrap','wrapreverse']);
+const keywords = new Set(['bold','bolder','lighter','normal','italic','oblique','thin','hairline','semibold','extrabold','ultrabold','medium','regular','small','xxsmall','xsmall','large','xlarge','xxlarge','smaller','larger','normal','collapse','hidden','visible','scroll','auto','block','inline','inlineblock','inlineflex','grid','inlinegrid','none','contents','unset','inherit','initial','solid','dashed','dotted','double','groove','ridge','inset','outset','cover','contain','fill','stroke','running','paused','forwards','backwards','both','ease','linear','easein','easeout','easeinout','stepstart','stepend','nowrap','pre','prewrap','preline','breakspace','uppercase','lowercase','capitalize','center','justify','start','end','stretch','baseline','sub','super','overline','through','pointer','default','notallowed','text','wait','help','progress','snapstart','snapend','snapcenter','snearest','mandatory','smooth','noerase','erase','vertical','horizontal','row','column','rowreverse','columnreverse','wrap','wrapreverse','sm','md','lg','xl','2xl']);
 const unitless = new Set(['z', 'opacity', 'zIndex']);
 const ms = new Set(['tn', 'transition']);
 const transforms = new Set(['tx', 'ty', 'translateX', 'translateY', 'tr', 'ts', 'rotate', 'scale']);
@@ -92,7 +92,9 @@ function parse(attr: string): string {
 
 let C = 0;
 const R: string[] = [];
-const pendingHoverTarget: { el: Element; level: number; css: string; media?: number }[] = [];
+const pseudo: Record<string, string> = { h: 'hover', a: 'active', f: 'focus', fw: 'focus-within', fv: 'focus-visible', d: 'disabled', ch: 'checked', v: 'visited', ln: 'link' };
+const PS = Object.keys(pseudo).sort((a, b) => b.length - a.length);
+const pendingTarget: { el: Element; level: number; css: string; media?: number; pseudo: string }[] = [];
 
 function mediaWrap(m: number | undefined, css: string): string {
   return m ? `@media(min-width:${m}px){${css}}` : css;
@@ -107,20 +109,26 @@ function apply(el: Element) {
     for (const bp of BPS) {
       if (attr.startsWith(bp + ':')) { media = BP[bp]; attr = attr.slice(bp.length + 1); break; }
     }
-    if (attr.startsWith('h:')) {
-      const css = parse(attr.slice(2));
+    let matched = false;
+    for (const p of PS) {
+      if (!attr.startsWith(p + ':') || attr.length <= p.length + 1) continue;
+      const sel = attr.slice(p.length + 1);
+      if (!sel) continue;
+      const css = parse(sel);
       if (css) {
         const cls = `_t${C++}`;
         el.classList.add(cls);
-        R.push(mediaWrap(media, `.${cls}:hover{${css.split(';').map(p => p + '!important').join(';')}}`));
+        R.push(mediaWrap(media, `.${cls}:${pseudo[p]}{${css.split(';').map(p => p + '!important').join(';')}}`));
       }
       el.removeAttribute(a.name);
-      continue;
+      matched = true;
+      break;
     }
-    const hm = attr.match(/^h(\d+):(.+)$/);
-    if (hm) {
-      const css = parse(hm[2]);
-      if (css) pendingHoverTarget.push({ el, level: +hm[1], css, media });
+    if (matched) continue;
+    const hm = attr.match(/^([a-z]+?)(\d+):(.+)$/);
+    if (hm && pseudo[hm[1]]) {
+      const css = parse(hm[3]);
+      if (css) pendingTarget.push({ el, level: +hm[2], css, media, pseudo: pseudo[hm[1]] });
       el.removeAttribute(a.name);
       continue;
     }
@@ -148,7 +156,7 @@ export function t(value: unknown) {
     apply(n);
     if (n.hasAttribute('ref')) { refs[n.getAttribute('ref')!] = n; n.removeAttribute('ref'); }
   }
-  for (const { el, level, css, media } of pendingHoverTarget) {
+  for (const { el, level, css, media, pseudo: ps } of pendingTarget) {
     let ancestor: HTMLElement | null = el as HTMLElement;
     for (let i = 0; i < level; i++) ancestor = ancestor?.parentElement ?? null;
     if (ancestor && ancestor !== el) {
@@ -156,10 +164,10 @@ export function t(value: unknown) {
       const hCls = `_t${C++}`;
       ancestor.classList.add(tCls);
       el.classList.add(hCls);
-      R.push(mediaWrap(media, `.${tCls}:hover .${hCls}{${css.split(';').map(p => p + '!important').join(';')}}`));
+      R.push(mediaWrap(media, `.${tCls}:${ps} .${hCls}{${css.split(';').map(p => p + '!important').join(';')}}`));
     }
   }
-  pendingHoverTarget.length = 0;
+  pendingTarget.length = 0;
   document.body.appendChild(T.content);
   if (R.length) {
     const el = document.querySelector('style[data-t]') as HTMLStyleElement || (() => { const s = document.createElement('style'); s.setAttribute('data-t', ''); return document.head.appendChild(s); })();

@@ -201,31 +201,55 @@ Apply styles on hover:
 
 ```css
 ._t0:hover {
-  background-color: red !important;
+  background: red !important;
   padding: 15px !important;
 }
 ```
 
-## Ancestor Hover (`h1:`, `h2:`, ...)
+## Pseudo-Classes (`h:`, `a:`, `f:`, `d:`, ...)
 
-Hover a parent to style a child. The number indicates how many levels up:
+| Prefix | CSS | Description |
+|--------|-----|-------------|
+| `h:` | `:hover` | Hover state |
+| `a:` | `:active` | Click/press state |
+| `f:` | `:focus` | Focus state |
+| `fw:` | `:focus-within` | Focus within container |
+| `fv:` | `:focus-visible` | Keyboard focus indicator |
+| `d:` | `:disabled` | Disabled state |
+| `ch:` | `:checked` | Checkbox/radio checked |
+| `v:` | `:visited` | Visited link |
+| `ln:` | `:link` | Unvisited link |
+
+```html
+<div a:bgred f:clwhite d:opacity50>Click me</div>
+```
+
+```css
+._t0:active { background: red !important; }
+._t1:focus { color: white !important; }
+._t2:disabled { opacity: 50 !important; }
+```
+
+## Ancestor Pseudo-Classes (`h1:`, `a2:`, `f3:`, ...)
+
+Style a child when an ancestor is in a pseudo-state. The number indicates how many levels up:
 
 ```html
 <div>
-  <span h1:p30>Hover parent to pad me</span>
+  <span a1:p30>Click parent to pad me</span>
 </div>
 ```
 
 ```css
-._t0:hover ._t1 {
+._t0:active ._t1 {
   padding: 30px !important;
 }
 ```
 
-- `h1:` — hover immediate parent
-- `h2:` — hover grandparent
-- `h3:` — hover great-grandparent
-- `hN:` — hover Nth ancestor
+- `h1:` / `a1:` / `f1:` — immediate parent
+- `h2:` / `a2:` / `f2:` — grandparent
+- `h3:` / `f3:` — great-grandparent
+- `hN:` — Nth ancestor
 
 ## Responsive (`sm:`, `md:`, `lg:`, `xl:`, `2xl:`)
 
