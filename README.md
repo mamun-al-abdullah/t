@@ -300,6 +300,21 @@ input.placeholder = "Type...";
 btn.onclick = () => alert(input.value);
 ```
 
+## Auto-Patch `innerHTML`
+
+Any `innerHTML` assignment automatically applies `t()` styles:
+
+```js
+el.innerHTML = '<div bgred p15>hello</div>';
+// → <div style="background:red;padding:15px">hello</div>
+
+// Dynamic updates work too
+el.innerHTML = '<div h:bgblue tn300>hover me</div>';
+// → hover styles auto-applied
+```
+
+No extra imports needed — styles apply on any DOM insert.
+
 ## License
 
 MIT

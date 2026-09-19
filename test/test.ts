@@ -159,4 +159,26 @@ document.body.innerHTML = '';
 const { s } = t('<div ml10><span mr20 ref=s></span></div>');
 if (s?.getAttribute('style') !== 'margin-right:20px') console.log(`✗ nested: ${s?.getAttribute('style')}`);
 
+// innerHTML auto-patch
+document.body.innerHTML = '<div id=box></div>';
+const box = document.getElementById('box')!;
+box.innerHTML = '<div bgred p10>test</div>';
+const ihStyle = box.querySelector('div')?.getAttribute('style');
+if (ihStyle !== 'background:red;padding:10px') console.log(`✗ innerHTML: ${ihStyle}`);
+
+// Dynamic innerHTML
+box.innerHTML = '';
+const ch = document.createElement('div');
+box.appendChild(ch);
+ch.innerHTML = '<span bgteal p15>dyn</span>';
+const dynStyle = box.querySelector('span')?.getAttribute('style');
+if (dynStyle !== 'background:teal;padding:15px') console.log(`✗ dynamic: ${dynStyle}`);
+
+// Nested innerHTML
+box.innerHTML = '<div bgblue p20><span bgred p5>nested</span></div>';
+const nd = box.querySelector('div')?.getAttribute('style');
+const ns = box.querySelector('span')?.getAttribute('style');
+if (nd !== 'background:blue;padding:20px') console.log(`✗ nested div: ${nd}`);
+if (ns !== 'background:red;padding:5px') console.log(`✗ nested span: ${ns}`);
+
 console.log('All tests complete');

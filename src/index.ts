@@ -147,14 +147,11 @@ function apply(el: Element) {
   if (s.length) el.setAttribute('style', (el.getAttribute('style') || '') + s.join(';'));
 }
 
-export function t(value: unknown) {
-  T.innerHTML = String(value);
-  const refs: Record<string, HTMLElement> = {};
-  const w = document.createTreeWalker(T.content, NodeFilter.SHOW_ELEMENT);
+function process(root: Element | DocumentFragment) {
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
   let n: HTMLElement | null;
   while ((n = w.nextNode() as HTMLElement | null)) {
     apply(n);
-    if (n.hasAttribute('ref')) { refs[n.getAttribute('ref')!] = n; n.removeAttribute('ref'); }
   }
   for (const { el, level, css, media, pseudo: ps } of pendingTarget) {
     let ancestor: HTMLElement | null = el as HTMLElement;
@@ -168,11 +165,30 @@ export function t(value: unknown) {
     }
   }
   pendingTarget.length = 0;
-  document.body.appendChild(T.content);
   if (R.length) {
     const el = document.querySelector('style[data-t]') as HTMLStyleElement || (() => { const s = document.createElement('style'); s.setAttribute('data-t', ''); return document.head.appendChild(s); })();
     el.textContent += R.join('');
     R.length = 0;
   }
+}
+
+export function t(value: unknown) {
+  T.innerHTML = String(value);
+  const refs: Record<string, HTMLElement> = {};
+  const w = document.createTreeWalker(T.content, NodeFilter.SHOW_ELEMENT);
+  let n: HTMLElement | null;
+  while ((n = w.nextNode() as HTMLElement | null)) {
+    if (n.hasAttribute('ref')) { refs[n.getAttribute('ref')!] = n; n.removeAttribute('ref'); }
+  }
+  process(T.content);
+  document.body.appendChild(T.content);
   return refs;
+}
+
+if (typeof Element !== 'undefined') {
+  const d = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML')!;
+  Object.defineProperty(Element.prototype, 'innerHTML', {
+    set(v) { d.set!.call(this, v); process(this); },
+    get() { return d.get!.call(this); }
+  });
 }
