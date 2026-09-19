@@ -1,3 +1,16 @@
+declare global {
+  interface Element {
+    ih: string;
+    it: string;
+    tc: string;
+    ata(...a: string[]): this;
+    atr(...a: string[]): this;
+    att(...a: string[]): this;
+    atg(a: string): string | null;
+    ath(a: string): boolean;
+  }
+}
+
 const T = document.createElement('template');
 
 const A: Record<string, string> = {
@@ -29,13 +42,12 @@ const exact: Record<string, string> = {
   ba: '$bd',
 };
 
-const unitless = new Set(['z', 'opacity', 'zIndex']);
+const noPx = new Set(['z', 'opacity', 'zIndex', 'ts', 'scale']);
 const ms = new Set(['tn', 'transition']);
 const transforms = new Set(['tx', 'ty', 'translateX', 'translateY', 'tr', 'ts', 'rotate', 'scale']);
 const solidSuffix = new Set(['ba', 'bt', 'br', 'bb', 'bl', 'border', 'borderTop', 'borderRight', 'borderBottom', 'borderLeft']);
 const colors = new Set(['red','blue','green','white','black','yellow','orange','purple','pink','gray','grey','teal','cyan','magenta','lime','olive','maroon','navy','aqua','fuchsia','silver','transparent','inherit','initial','unset','currentcolor']);
 const deg = new Set(['tr', 'rotate']);
-const unitlessVal = new Set(['ts', 'scale']);
 const BP: Record<string, number> = { sm: 640, md: 768, lg: 1024, xl: 1280, '2xl': 1536 };
 const BPS = Object.keys(BP).sort((a, b) => b.length - a.length);
 const AP = Object.keys(A).sort((a, b) => b.length - a.length);
@@ -65,7 +77,7 @@ const kebab = (s: string) => s.replace(/([A-Z])/g, '-$1').toLowerCase();
 const toCSS = (v: string) => v.split(';').map(p => { const i = p.indexOf(':'); return i > -1 ? `${kebab(p.slice(0, i))}:${p.slice(i + 1)}` : kebab(p); }).join(';');
 
 function parseVal(raw: string, prop: string): string {
-  if (/^-?\d+$/.test(raw)) return unitless.has(prop) || unitlessVal.has(prop) ? raw : ms.has(prop) ? `${raw}ms` : deg.has(prop) ? `${raw}deg` : `${raw}px`;
+  if (/^-?\d+$/.test(raw)) return noPx.has(prop) ? raw : ms.has(prop) ? `${raw}ms` : deg.has(prop) ? `${raw}deg` : `${raw}px`;
   if (/^-?\d+p$/.test(raw)) return `${raw.slice(0, -1)}%`;
   return raw;
 }
@@ -96,13 +108,12 @@ function parse(attr: string): string {
 
 let C = 0;
 const R: string[] = [];
+const imp = (css: string) => css.split(';').map(p => p + '!important').join(';');
 const pseudo: Record<string, string> = { h: 'hover', a: 'active', f: 'focus', fw: 'focus-within', fv: 'focus-visible', d: 'disabled', ch: 'checked', v: 'visited', ln: 'link' };
 const PS = Object.keys(pseudo).sort((a, b) => b.length - a.length);
 const pendingTarget: { el: Element; level: number; css: string; media?: number; pseudo: string }[] = [];
 
-function mediaWrap(m: number | undefined, css: string): string {
-  return m ? `@media(min-width:${m}px){${css}}` : css;
-}
+const mediaWrap = (m: number | undefined, css: string) => m ? `@media(min-width:${m}px){${css}}` : css;
 
 function apply(el: Element) {
   const s: string[] = [];
@@ -122,7 +133,7 @@ function apply(el: Element) {
       if (css) {
         const cls = `_t${C++}`;
         el.classList.add(cls);
-        R.push(mediaWrap(media, `.${cls}:${pseudo[p]}{${css.split(';').map(p => p + '!important').join(';')}}`));
+        R.push(mediaWrap(media, `.${cls}:${pseudo[p]}{${imp(css)}}`));
       }
       el.removeAttribute(a.name);
       matched = true;
@@ -141,22 +152,24 @@ function apply(el: Element) {
       if (media) {
         const cls = `_t${C++}`;
         el.classList.add(cls);
-        R.push(mediaWrap(media, `.${cls}{${css.split(';').map(p => p + '!important').join(';')}}`));
+        R.push(mediaWrap(media, `.${cls}{${imp(css)}}`));
       } else {
         s.push(css);
       }
       el.removeAttribute(a.name);
     }
   }
-  if (s.length) el.setAttribute('style', (el.getAttribute('style') || '') + s.join(';'));
+  if (s.length) {
+    const keys = s.map(p => p.split(':')[0]);
+    const ex = (el.getAttribute('style') || '').split(';').filter(p => p && !keys.includes(p.split(':')[0]));
+    el.setAttribute('style', [...ex, ...s].join(';'));
+  }
 }
 
 function process(root: Element | DocumentFragment) {
   const w = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
   let n: HTMLElement | null;
-  while ((n = w.nextNode() as HTMLElement | null)) {
-    apply(n);
-  }
+  while ((n = w.nextNode() as HTMLElement | null)) apply(n);
   for (const { el, level, css, media, pseudo: ps } of pendingTarget) {
     let ancestor: HTMLElement | null = el as HTMLElement;
     for (let i = 0; i < level; i++) ancestor = ancestor?.parentElement ?? null;
@@ -165,7 +178,7 @@ function process(root: Element | DocumentFragment) {
       const hCls = `_t${C++}`;
       ancestor.classList.add(tCls);
       el.classList.add(hCls);
-      R.push(mediaWrap(media, `.${tCls}:${ps} .${hCls}{${css.split(';').map(p => p + '!important').join(';')}}`));
+      R.push(mediaWrap(media, `.${tCls}:${ps} .${hCls}{${imp(css)}}`));
     }
   }
   pendingTarget.length = 0;
@@ -204,12 +217,20 @@ if (typeof Element !== 'undefined') {
     set(v) { this.innerHTML = v; process(this); },
     get()  { return this.innerHTML; }
   });
-  Object.defineProperty(Element.prototype, 'it', {
-    set(v) { this.innerText = v; },
-    get()  { return this.innerText; }
-  });
-  Object.defineProperty(Element.prototype, 'tc', {
-    set(v) { this.textContent = v; },
-    get()  { return this.textContent; }
-  });
+  for (const [k, p] of [['it', 'innerText'], ['tc', 'textContent']]) {
+    Object.defineProperty(Element.prototype, k, { set(v) { (this as any)[p] = v; }, get() { return (this as any)[p]; } });
+  }
+  const p = Element.prototype;
+  const rmStyle = (el: Element, attr: string) => {
+    const css = parse(attr);
+    if (css) {
+      const keys = css.split(';').map(x => x.split(':')[0]);
+      el.setAttribute('style', (el.getAttribute('style') || '').split(';').filter(x => x && !keys.includes(x.split(':')[0])).join(';'));
+    }
+  };
+  p.ata = function(...a: string[]) { for (const v of a) this.setAttribute(v, ''); apply(this); return this; };
+  p.atr = function(...a: string[]) { for (const v of a) { this.removeAttribute(v); rmStyle(this, v); } return this; };
+  p.att = function(...a: string[]) { let add = false; for (const v of a) { const css = parse(v); const style = this.getAttribute('style') || ''; const has = this.hasAttribute(v) || (css && style.includes(css)); has ? (this.removeAttribute(v), rmStyle(this, v)) : (this.setAttribute(v, ''), add = true); } if (add) apply(this); return this; };
+  p.atg = function(a: string) { return this.getAttribute(a); };
+  p.ath = function(a: string) { return this.hasAttribute(a); };
 }

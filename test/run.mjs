@@ -39,4 +39,10 @@ document.body.innerHTML='<div id=box>BOX</div>';const box=document.getElementByI
 document.body.innerHTML='<div id=box>BOX</div>';const box2=document.getElementById('box');const{s2}=t(box2,'<span bgblue ref=s2>B</span>',2);if(box2.firstElementChild!==s2){console.log('X pos2');f++}
 document.body.innerHTML='<div id=box>BOX</div>';const box3=document.getElementById('box');const{s3}=t(box3,'<span bggreen ref=s3>C</span>',3);if(box3.lastElementChild!==s3){console.log('X pos3');f++}
 document.body.innerHTML='<div id=box>BOX</div>';const box4=document.getElementById('box');const{s4}=t(box4,'<span clwhite ref=s4>D</span>',4);if(box4.nextElementSibling!==s4){console.log('X pos4');f++}
+// ata/atr/att/atg/ath
+document.body.innerHTML='';document.head.innerHTML='';const ate=document.createElement('div');document.body.appendChild(ate);ate.ata('bgteal','p10');if(ate.getAttribute('style')!=='background:teal;padding:10px'){console.log('X ata');f++}
+document.body.innerHTML='';const ate2=document.createElement('div');document.body.appendChild(ate2);ate2.ata('bgred');ate2.atr('bgred');if(ate2.hasAttribute('bgred')){console.log('X atr');f++}
+document.body.innerHTML='';const ate3=document.createElement('div');document.body.appendChild(ate3);ate3.att('bgblue');if(ate3.getAttribute('style')!=='background:blue'){console.log('X att-add');f++}ate3.att('bgblue');if(ate3.getAttribute('style')!==''){console.log('X att-remove');f++}
+document.body.innerHTML='';const ate4=document.createElement('div');document.body.appendChild(ate4);ate4.setAttribute('data-x','hello');if(ate4.atg('data-x')!=='hello'){console.log('X atg');f++}
+document.body.innerHTML='';const ate5=document.createElement('div');document.body.appendChild(ate5);ate5.setAttribute('data-y','1');if(!ate5.ath('data-y')){console.log('X ath-true');f++}if(ate5.ath('data-z')){console.log('X ath-false');f++}
 console.log(f?f+' FAILED':'ALL PASSED');

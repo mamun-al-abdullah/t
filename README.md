@@ -330,6 +330,32 @@ box.it = 'plain text';  // no HTML parse
 box.tc = 'plain text';  // no HTML parse
 ```
 
+## Attribute Methods (`ata`, `atr`, `att`, `atg`, `ath`)
+
+| Method | Description | Returns |
+|--------|-------------|---------|
+| `el.ata(...attrs)` | Add/set attribute(s) + auto-style | `this` |
+| `el.atr(...attrs)` | Remove attribute(s) | `this` |
+| `el.att(...attrs)` | Toggle attribute(s) | `this` |
+| `el.atg(attr)` | Get attribute value | `string \| null` |
+| `el.ath(attr)` | Has attribute | `boolean` |
+
+```js
+el.ata('bgteal', 'p10');     // set + auto-style
+el.ata('h:bgred');           // pseudo-class → generates CSS rule
+el.atr('bgteal');            // remove single
+el.atr('bgteal', 'p10');    // remove multiple
+el.att('bgblue');            // toggle on/off
+el.att('bgred', 'p20');     // toggle multiple
+el.atg('data-id');           // get value
+el.ath('bgteal');            // check if exists
+```
+
+Chaining:
+```js
+el.ata('bgred').ata('p15').atr('bgred');
+```
+
 ## License
 
 MIT
