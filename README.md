@@ -108,7 +108,7 @@ box.tc = 'plain text';
 | `fwbold`   | `font-weight:bold`   |
 | `lh15`     | `line-height:15px`   |
 | `ls1`      | `letter-spacing:1px` |
-| `tacenter` | `text-align:center`  |
+| `tac`     | `text-align:center`  |
 
 ### Position
 
