@@ -166,11 +166,13 @@ box.tc = 'plain text';
 
 ### Other
 
-| Shorthand        | CSS                |
-| ---------------- | ------------------ |
-| `z10`            | `z-index:10`       |
-| `overflowhidden` | `overflow:hidden`  |
-| `tn500`          | `transition:500ms` |
+| Shorthand        | CSS                    |
+| ---------------- | ---------------------- |
+| `z10`            | `z-index:10`           |
+| `overflowhidden` | `overflow:hidden`      |
+| `tn500`          | `transition:500ms`     |
+| `selnone`        | `user-select:none`     |
+| `selauto`        | `user-select:auto`     |
 
 ### Transform
 

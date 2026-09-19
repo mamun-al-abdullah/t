@@ -1,9 +1,9 @@
 import { t } from "../dist/index.mjs";
 
 const {r1} = t(`
-  <div bggray p50>
+  <div bggray p50 selnone>
   <div v md:h bggrey tn300>
-    <h1 bgteal pb15 tn300 h1:ty100>Hello world</h1>
+    <h1 bgteal pb15 tn300 h1:ty100 selall>Hello world</h1>
     <p bgred lg:h2:tx100 ref=r1 p15 pl100 tn500 md:bgcyan md:h:bgyellow lg:h:tx300 lg:tx200>wow</p>
   </div>
   </div>

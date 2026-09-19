@@ -22,7 +22,7 @@ const A: Record<string, string> = {
   fs: 'fontSize', fw: 'fontWeight', lh: 'lineHeight', ls: 'letterSpacing', ta: 'textAlign',
   bd: 'border', rounded: 'borderRadius', shadow: 'boxShadow',
   opacity: 'opacity', z: 'zIndex', overflow: 'overflow',
-  gap: 'gap', justify: 'justifyContent', items: 'alignItems',
+  gap: 'gap', justify: 'justifyContent', items: 'alignItems', sel: 'userSelect',
   ml: '$m$l', mr: '$m$r', mt: '$m$t', mb: '$m$b',
   mx: '$m$l:$m$r', my: '$m$t:$m$b',
   pl: '$p$l', pr: '$p$r', pt: '$p$t', pb: '$p$b',
