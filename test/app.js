@@ -27,3 +27,7 @@ const {r1 : r1v2} = t(`
     <div>new ${Math.random()}</div>
     `
   }
+
+  t(`
+    <div a h48 w48 c fs40 ba1 b100 h:ba5 tn300 h:ts2  bc#00aaaa bcrtransparent bglinear-gradient(red,blue)>=</div>
+    `)

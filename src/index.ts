@@ -1,21 +1,22 @@
 const T = document.createElement('template');
 
 const A: Record<string, string> = {
-  m: 'margin', p: 'padding', t: 'top', r: 'right', l: 'left', bottom: 'bottom',
+  m: 'margin', p: 'padding', t: 'top', r: 'right', l: 'left', b: 'bottom',
   x: '$l:$r', y: '$t:$b', w: 'width', h: 'height', min: 'min', max: 'max',
   P: 'position', D: 'display', fd: 'flexDirection', C: 'center',
-  bg: 'backgroundColor', cl: 'color', tn: 'transition',
-  tx: 'translateX', ty: 'translateY',
+  bg: 'background', cl: 'color', tn: 'transition',
+  tx: 'translateX', ty: 'translateY', tr: 'rotate', ts: 'scale',
   fs: 'fontSize', fw: 'fontWeight', lh: 'lineHeight', ls: 'letterSpacing', ta: 'textAlign',
   bd: 'border', rounded: 'borderRadius', shadow: 'boxShadow',
   opacity: 'opacity', z: 'zIndex', overflow: 'overflow',
   gap: 'gap', justify: 'justifyContent', items: 'alignItems',
-  ml: '$m$l', mr: '$m$r', mt: '$m$t', mb: '$m$bottom',
-  mx: '$m$l:$m$r', my: '$m$t:$m$bottom',
-  pl: '$p$l', pr: '$p$r', pt: '$p$t', pb: '$p$bottom',
-  px: '$p$l:$p$r', py: '$p$t:$p$bottom',
+  ml: '$m$l', mr: '$m$r', mt: '$m$t', mb: '$m$b',
+  mx: '$m$l:$m$r', my: '$m$t:$m$b',
+  pl: '$p$l', pr: '$p$r', pt: '$p$t', pb: '$p$b',
+  px: '$p$l:$p$r', py: '$p$t:$p$b',
   minw: '$min$w', minh: '$min$h', maxw: '$max$w', maxh: '$max$h',
-  b: '$bd', bt: '$bd$t', br: '$bd$r', bb: '$bd$bottom', bl: '$bd$l',
+  ba: '$bd', bt: '$bd$t', br: '$bd$r', bb: '$bd$b', bl: '$bd$l',
+  bc: 'borderColor', bct: 'borderTopColor', bcr: 'borderRightColor', bcb: 'borderBottomColor', bcl: 'borderLeftColor',
 };
 
 const exact: Record<string, string> = {
@@ -25,14 +26,17 @@ const exact: Record<string, string> = {
   flex: '$D:flex', c: '$D:flex;$justify:$C;$items:$C',
   h: '$D:flex;$fd:row', v: '$D:flex;$fd:column',
   tac: '$ta:center', tar: '$ta:right', tal: '$ta:left',
-  b: '$bd',
+  ba: '$bd',
 };
 
-const colors = new Set(['red','blue','green','white','black','yellow','orange','purple','pink','teal','cyan','magenta','lime','maroon','navy','olive','gray','grey','silver','gold','coral','salmon','tomato','crimson','indigo','violet','turquoise','plum','orchid','khaki','lavender','ivory','beige','tan','wheat','peru','sienna','chocolate','firebrick','darkred','lightgreen','darkgreen','lightblue','darkblue','darkcyan','darkmagenta','darkviolet','darkorange','darkgoldenrod','darkslategray','darkolivegreen','mediumseagreen','mediumturquoise','mediumslateblue','mediumorchid','mediumpurple','hotpink','deeppink','palevioletred','lightsalmon','lightcoral','skyblue','lightskyblue','steelblue','dodgerblue','cornflowerblue','royalblue','slateblue','mediumblue','midnightblue','aquamarine','chartreuse','springgreen','forestgreen','limegreen','lawngreen','darkseagreen','palegreen','lightyellow','lemonchiffon','paleturquoise','powderblue','lightsteelblue','aliceblue','ghostwhite','snow','floralwhite','oldlace','linen','antiquewhite','mintcream','mistyrose','peachpuff','navajowhite','burlywood','sandybrown','darksalmon','rosybrown','darkkhaki','palegoldenrod','cadetblue','lightcyan','azure','honeydew','thistle','gainsboro','whitesmoke','darkgray','dimgray','lightslategray','slategray']);
+const colors = new Set(['transparent','currentcolor','inherit','initial','unset','red','blue','green','white','black','yellow','orange','purple','pink','teal','cyan','magenta','lime','maroon','navy','olive','gray','grey','silver','gold','coral','salmon','tomato','crimson','indigo','violet','turquoise','plum','orchid','khaki','lavender','ivory','beige','tan','wheat','peru','sienna','chocolate','firebrick','darkred','lightgreen','darkgreen','lightblue','darkblue','darkcyan','darkmagenta','darkviolet','darkorange','darkgoldenrod','darkslategray','darkolivegreen','mediumseagreen','mediumturquoise','mediumslateblue','mediumorchid','mediumpurple','hotpink','deeppink','palevioletred','lightsalmon','lightcoral','skyblue','lightskyblue','steelblue','dodgerblue','cornflowerblue','royalblue','slateblue','mediumblue','midnightblue','aquamarine','chartreuse','springgreen','forestgreen','limegreen','lawngreen','darkseagreen','palegreen','lightyellow','lemonchiffon','paleturquoise','powderblue','lightsteelblue','aliceblue','ghostwhite','snow','floralwhite','oldlace','linen','antiquewhite','mintcream','mistyrose','peachpuff','navajowhite','burlywood','sandybrown','darksalmon','rosybrown','darkkhaki','palegoldenrod','cadetblue','lightcyan','azure','honeydew','thistle','gainsboro','whitesmoke','darkgray','dimgray','lightslategray','slategray']);
 const keywords = new Set(['bold','bolder','lighter','normal','italic','oblique','thin','hairline','semibold','extrabold','ultrabold','medium','regular','small','xxsmall','xsmall','large','xlarge','xxlarge','smaller','larger','normal','collapse','hidden','visible','scroll','auto','block','inline','inlineblock','inlineflex','grid','inlinegrid','none','contents','unset','inherit','initial','solid','dashed','dotted','double','groove','ridge','inset','outset','cover','contain','fill','stroke','running','paused','forwards','backwards','both','ease','linear','easein','easeout','easeinout','stepstart','stepend','nowrap','pre','prewrap','preline','breakspace','uppercase','lowercase','capitalize','center','justify','start','end','stretch','baseline','sub','super','overline','through','pointer','default','notallowed','text','wait','help','progress','snapstart','snapend','snapcenter','snearest','mandatory','smooth','noerase','erase','vertical','horizontal','row','column','rowreverse','columnreverse','wrap','wrapreverse']);
 const unitless = new Set(['z', 'opacity', 'zIndex']);
 const ms = new Set(['tn', 'transition']);
-const transforms = new Set(['tx', 'ty', 'translateX', 'translateY']);
+const transforms = new Set(['tx', 'ty', 'translateX', 'translateY', 'tr', 'ts', 'rotate', 'scale']);
+const solidSuffix = new Set(['ba', 'bt', 'br', 'bb', 'bl', 'border', 'borderTop', 'borderRight', 'borderBottom', 'borderLeft']);
+const deg = new Set(['tr', 'rotate']);
+const unitlessVal = new Set(['ts', 'scale']);
 const BP: Record<string, number> = { sm: 640, md: 768, lg: 1024, xl: 1280, '2xl': 1536 };
 const BPS = Object.keys(BP).sort((a, b) => b.length - a.length);
 const AP = Object.keys(A).sort((a, b) => b.length - a.length);
@@ -62,10 +66,13 @@ const kebab = (s: string) => s.replace(/([A-Z])/g, '-$1').toLowerCase();
 const toCSS = (v: string) => v.split(';').map(p => { const i = p.indexOf(':'); return i > -1 ? `${kebab(p.slice(0, i))}:${p.slice(i + 1)}` : kebab(p); }).join(';');
 
 function parseVal(raw: string, prop: string): string {
-  if (/^-?\d+$/.test(raw)) return unitless.has(prop) ? raw : ms.has(prop) ? `${raw}ms` : `${raw}px`;
+  if (/^-?\d+$/.test(raw)) return unitless.has(prop) || unitlessVal.has(prop) ? raw : ms.has(prop) ? `${raw}ms` : deg.has(prop) ? `${raw}deg` : `${raw}px`;
   if (/^-?\d+p$/.test(raw)) return `${raw.slice(0, -1)}%`;
   return raw;
 }
+
+const hex = /^#([0-9a-f]{3,8})$/i;
+const fn = /^(rgba?|hsla?|oklch|color|linear-gradient|radial-gradient|conic-gradient|repeating-linear-gradient|repeating-radial-gradient)\(.+\)$/i;
 
 function parse(attr: string): string {
   if (exact[attr]) return toCSS(resolve(exact[attr]));
@@ -74,10 +81,10 @@ function parse(attr: string): string {
     if (!attr.startsWith(p) || p.length >= attr.length) continue;
     const raw = attr.slice(p.length);
     const val = parseVal(raw, p);
-    if (/^\d/.test(raw) || colors.has(raw.toLowerCase()) || keywords.has(raw.toLowerCase()) || raw[0] === '-' && /^\d/.test(raw.slice(1))) {
+    if (/^\d/.test(raw) || colors.has(raw.toLowerCase()) || keywords.has(raw.toLowerCase()) || hex.test(raw) || fn.test(raw) || raw[0] === '-' && /^\d/.test(raw.slice(1))) {
       const resolved = resolve(A[p]);
       const props = resolved.includes(':') ? resolved.split(':') : [resolved];
-      return props.map(k => transforms.has(k) ? `transform:${k}(${val})` : `${kebab(k)}:${val}`).join(';');
+      return props.map(k => transforms.has(k) ? `transform:${k}(${val})` : solidSuffix.has(p) && /^\d/.test(raw) ? `${kebab(k)}:${val} solid` : `${kebab(k)}:${val}`).join(';');
     }
   }
   return '';

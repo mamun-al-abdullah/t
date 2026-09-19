@@ -69,10 +69,22 @@ refs.box.style.color; // apply additional JS to refs
 
 | Shorthand | CSS                     |
 | --------- | ----------------------- |
-| `bgred`   | `background-color:red`  |
-| `bgteal`  | `background-color:teal` |
+| `bgred`   | `background:red`        |
+| `bgteal`  | `background:teal`       |
 | `clwhite` | `color:white`           |
 | `clblack` | `color:black`           |
+| `bgtransparent` | `background:transparent` |
+| `cltransparent` | `color:transparent` |
+| `bctransparent` | `border-color:transparent` |
+| `bg#ff0000` | `background:#ff0000`  |
+| `cl#ffffff` | `color:#ffffff`        |
+| `bgrgba(255,0,0,0.5)` | `background:rgba(255,0,0,0.5)` |
+| `clhsl(120,100%,50%)` | `color:hsl(120,100%,50%)` |
+| `bglinear-gradient(red,blue)` | `background:linear-gradient(red,blue)` |
+| `bgradial-gradient(red,blue)` | `background:radial-gradient(red,blue)` |
+| `bgconic-gradient(red,blue)` | `background:conic-gradient(red,blue)` |
+
+> Use `135deg` instead of `to right` in gradients — HTML splits on spaces.
 
 ### Typography
 
@@ -92,11 +104,13 @@ refs.box.style.color; // apply additional JS to refs
 | `r` / `relative` | `position:relative` |
 | `f` / `fixed`    | `position:fixed`    |
 | `sticky`         | `position:sticky`   |
-| `l20`            | `left:20px`         |
-| `l-20`           | `left:-20px`        |
-| `r20`            | `right:20px`        |
-| `t20`            | `top:20px`          |
-| `l5p`            | `left:5%`           |
+| `l20`     | `left:20px` |
+| `l-20`    | `left:-20px` |
+| `r20`     | `right:20px` |
+| `t20`     | `top:20px` |
+| `b20`     | `bottom:20px` |
+| `b-10`    | `bottom:-10px` |
+| `l5p`     | `left:5%` |
 
 ### Flex
 
@@ -120,16 +134,21 @@ refs.box.style.color; // apply additional JS to refs
 
 ### Border
 
-| Shorthand  | CSS                 |
-| ---------- | ------------------- |
-| `b`        | `border`            |
-| `b1`       | `border:1px`        |
-| `bt1`      | `border-top:1px`    |
-| `br1`      | `border-right:1px`  |
-| `bb1`      | `border-bottom:1px` |
-| `bl1`      | `border-left:1px`   |
-| `rounded8` | `border-radius:8px` |
-| `shadowsm` | `box-shadow:sm`     |
+| Shorthand  | CSS                      |
+| ---------- | ------------------------ |
+| `ba`       | `border`                 |
+| `ba2`      | `border:2px solid`       |
+| `bt1`      | `border-top:1px solid`   |
+| `br1`      | `border-right:1px solid` |
+| `bb1`      | `border-bottom:1px solid`|
+| `bl1`      | `border-left:1px solid`  |
+| `bcred`    | `border-color:red`       |
+| `bctred`   | `border-top-color:red`   |
+| `bcrblue`  | `border-right-color:blue`|
+| `bcbgreen` | `border-bottom-color:green`|
+| `bclwhite` | `border-left-color:white`|
+| `rounded8` | `border-radius:8px`      |
+| `shadowsm` | `box-shadow:sm`          |
 
 ### Other
 
@@ -145,6 +164,10 @@ refs.box.style.color; // apply additional JS to refs
 | --------- | ----------------------------- |
 | `tx10`    | `transform:translateX(10px)`  |
 | `ty20`    | `transform:translateY(20px)`  |
+| `tr45`    | `transform:rotate(45deg)`     |
+| `tr-90`   | `transform:rotate(-90deg)`    |
+| `ts2`     | `transform:scale(2)`          |
+| `ts05`    | `transform:scale(05)`         |
 | `tx50p`   | `transform:translateX(50%)`   |
 | `tx-50p`  | `transform:translateX(-50%)`  |
 | `ty-20`   | `transform:translateY(-20px)` |
