@@ -18,11 +18,14 @@ const A: Record<string, string> = {
   x: '$l:$r', y: '$t:$b', w: 'width', h: 'height', min: 'min', max: 'max',
   P: 'position', D: 'display', fd: 'flexDirection', C: 'center',
   bg: 'background', cl: 'color', tn: 'transition',
-  tx: 'translateX', ty: 'translateY', tr: 'rotate', ts: 'scale',
+  tx: 'translateX', ty: 'translateY', tz: 'translateZ', t3d: 'translate3d',
+  tr: 'rotate', trx: 'rotateX', try: 'rotateY', trz: 'rotateZ',
+  ts: 'scale', tsx: 'scaleX', tsy: 'scaleY', tsz: 'scaleZ',
+  sk: 'skew', skx: 'skewX', sky: 'skewY', tp: 'perspective', fb: 'filter:blur',
   fs: 'fontSize', fw: 'fontWeight', lh: 'lineHeight', ls: 'letterSpacing', ta: 'textAlign',
   bd: 'border', rounded: 'borderRadius', shadow: 'boxShadow',
   opacity: 'opacity', z: 'zIndex', overflow: 'overflow', o: 'opacity',
-  gap: 'gap', justify: 'justifyContent', items: 'alignItems', sel: 'userSelect',
+  gap: 'gap', g: 'gap', gp: 'gap', justify: 'justifyContent', items: 'alignItems', sel: 'userSelect',
   ml: '$m$l', mr: '$m$r', mt: '$m$t', mb: '$m$b',
   mx: '$m$l:$m$r', my: '$m$t:$m$b',
   pl: '$p$l', pr: '$p$r', pt: '$p$t', pb: '$p$b',
@@ -42,15 +45,16 @@ const exact: Record<string, string> = {
   ba: '$bd', oa: 'overflow:auto', oh: 'overflow:hidden',
   oxa: 'overflowX:auto', oxh: 'overflowX:hidden',
   oya: 'overflowY:auto', oyh: 'overflowY:hidden',
+  p3d: 'transformStyle:preserve-3d', bfh: 'backfaceVisibility:hidden',
 };
 
-const noPx = new Set(['z', 'opacity', 'o', 'zIndex', 'ts', 'scale']);
+const noPx = new Set(['z', 'opacity', 'o', 'zIndex', 'ts', 'tsx', 'tsy', 'tsz', 'scale', 'scaleX', 'scaleY', 'scaleZ']);
 const div10 = new Set(['o', 'opacity']);
 const ms = new Set(['tn', 'transition']);
-const transforms = new Set(['tx', 'ty', 'translateX', 'translateY', 'tr', 'ts', 'rotate', 'scale']);
+const transforms = new Set(['tx', 'ty', 'tz', 'translateX', 'translateY', 'translateZ', 'translate3d', 't3d', 'tr', 'trx', 'try', 'trz', 'rotate', 'rotateX', 'rotateY', 'rotateZ', 'ts', 'tsx', 'tsy', 'tsz', 'scale', 'scaleX', 'scaleY', 'scaleZ', 'sk', 'skx', 'sky', 'skew', 'skewX', 'skewY', 'tp', 'perspective']);
 const solidSuffix = new Set(['ba', 'bt', 'br', 'bb', 'bl', 'border', 'borderTop', 'borderRight', 'borderBottom', 'borderLeft']);
 const colors = new Set(['red','blue','green','white','black','yellow','orange','purple','pink','gray','grey','teal','cyan','magenta','lime','olive','maroon','navy','aqua','fuchsia','silver','transparent','inherit','initial','unset','currentcolor']);
-const deg = new Set(['tr', 'rotate']);
+const deg = new Set(['tr', 'trx', 'try', 'trz', 'rotate', 'rotateX', 'rotateY', 'rotateZ', 'sk', 'skx', 'sky', 'skew', 'skewX', 'skewY']);
 const BP: Record<string, number> = { sm: 640, md: 768, lg: 1024, xl: 1280, '2xl': 1536 };
 const BPS = Object.keys(BP).sort((a, b) => b.length - a.length);
 const AP = Object.keys(A).sort((a, b) => b.length - a.length);
@@ -101,6 +105,7 @@ function parse(attr: string): string {
     if (!attr.startsWith(p) || p.length >= attr.length) continue;
     const raw = attr.slice(p.length);
     if (!raw) continue;
+    if (p === 'fb') return `filter:blur(${parseVal(raw, p)})`;
     const val = parseVal(raw, p);
     const resolved = resolve(A[p]);
     const props = resolved.includes(':') ? resolved.split(':') : [resolved];

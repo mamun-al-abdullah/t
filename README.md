@@ -134,7 +134,7 @@ box.tc = 'plain text';
 | `c`             | `display:flex;justify-content:center;align-items:center` |
 | `h`             | `display:flex;flex-direction:row`                        |
 | `v`             | `display:flex;flex-direction:column`                     |
-| `gap10`         | `gap:10px`                                               |
+| `g10` / `gp10`  | `gap:10px`                                               |
 | `justifycenter` | `justify-content:center`                                 |
 | `itemscenter`   | `align-items:center`                                     |
 
@@ -185,13 +185,29 @@ box.tc = 'plain text';
 | --------- | ----------------------------- |
 | `tx10`    | `transform:translateX(10px)`  |
 | `ty20`    | `transform:translateY(20px)`  |
+| `tz30`    | `transform:translateZ(30px)`  |
 | `tr45`    | `transform:rotate(45deg)`     |
-| `tr-90`   | `transform:rotate(-90deg)`    |
+| `trx45`   | `transform:rotateX(45deg)`    |
+| `try45`   | `transform:rotateY(45deg)`    |
+| `trz45`   | `transform:rotateZ(45deg)`    |
 | `ts2`     | `transform:scale(2)`          |
-| `ts05`    | `transform:scale(05)`         |
+| `tsx2`    | `transform:scaleX(2)`         |
+| `tsy2`    | `transform:scaleY(2)`         |
+| `tsz2`    | `transform:scaleZ(2)`         |
+| `sk10`    | `transform:skew(10deg)`       |
+| `skx10`   | `transform:skewX(10deg)`      |
+| `sky10`   | `transform:skewY(10deg)`      |
+| `tp500`   | `transform:perspective(500px)`|
 | `tx50p`   | `transform:translateX(50%)`   |
-| `tx-50p`  | `transform:translateX(-50%)`  |
-| `ty-20`   | `transform:translateY(-20px)` |
+| `tr-90`   | `transform:rotate(-90deg)`    |
+
+### 3D / Filter
+
+| Shorthand     | CSS                          |
+| ------------- | ---------------------------- |
+| `p3d`         | `transform-style:preserve-3d`|
+| `bfh`         | `backface-visibility:hidden` |
+| `fb5`         | `filter:blur(5px)`           |
 
 ### Negative values
 
