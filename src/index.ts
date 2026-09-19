@@ -172,7 +172,14 @@ function process(root: Element | DocumentFragment) {
   }
 }
 
-export function t(value: unknown, html?: string) {
+const POSITIONS: Record<number, (parent: Element, frag: DocumentFragment) => void> = {
+  1: (p, f) => p.before(f),
+  2: (p, f) => { while (f.firstChild) p.prepend(f.firstChild); },
+  3: (p, f) => p.appendChild(f),
+  4: (p, f) => p.after(f),
+};
+
+export function t(value: unknown, html?: string, pos?: number) {
   const [parent, content] = typeof value === 'string' ? [null, value] : [value as Element, html];
   T.innerHTML = String(content);
   const refs: Record<string, HTMLElement> = {};
@@ -182,7 +189,9 @@ export function t(value: unknown, html?: string) {
     if (n.hasAttribute('ref')) { refs[n.getAttribute('ref')!] = n; n.removeAttribute('ref'); }
   }
   process(T.content);
-  (parent || document.body).appendChild(T.content);
+  const target = parent || document.body;
+  if (pos && POSITIONS[pos]) POSITIONS[pos](target, T.content);
+  else target.appendChild(T.content);
   return refs;
 }
 
